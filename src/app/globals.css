@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @theme {
   --font-sans: var(--font-geist-sans);
@@ -21,4 +24,199 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Article Content Styling */
+.article-content h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  color: #1a202c;
+  scroll-margin-top: 100px;
+}
+
+.article-content h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.3;
+  color: #1a202c;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+  scroll-margin-top: 100px;
+}
+
+.article-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  color: #2d3748;
+  scroll-margin-top: 100px;
+}
+
+.article-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  color: #2d3748;
+  scroll-margin-top: 100px;
+}
+
+.article-content h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  color: #4a5568;
+  scroll-margin-top: 100px;
+}
+
+.article-content h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  color: #4a5568;
+  scroll-margin-top: 100px;
+}
+
+.article-content p {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.7;
+  color: #4a5568;
+  font-size: 1.125rem;
+}
+
+.article-content ul, .article-content ol {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.article-content ul {
+  list-style-type: disc;
+}
+
+.article-content ol {
+  list-style-type: decimal;
+}
+
+.article-content li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+  color: #4a5568;
+}
+
+.article-content a {
+  color: #4f46e5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.article-content a:hover {
+  color: #4338ca;
+}
+
+.article-content blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid #4f46e5;
+  background-color: #f8fafc;
+  font-style: italic;
+  color: #4a5568;
+}
+
+.article-content table {
+  width: 100%;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-collapse: collapse;
+}
+
+.article-content table th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.article-content table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.article-content table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+}
+
+.article-content code {
+  background-color: #f1f5f9;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.article-content pre {
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.article-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.article-content hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Add responsive adjustments */
+@media (max-width: 768px) {
+  .article-content h1 {
+    font-size: 2rem;
+  }
+  
+  .article-content h2 {
+    font-size: 1.75rem;
+  }
+  
+  .article-content h3 {
+    font-size: 1.5rem;
+  }
+  
+  .article-content h4 {
+    font-size: 1.25rem;
+  }
+  
+  .article-content p, .article-content li {
+    font-size: 1rem;
+  }
 }

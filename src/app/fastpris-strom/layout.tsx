@@ -1,6 +1,5 @@
+import React from 'react';
 import { Metadata } from 'next';
-import Script from 'next/script';
-import './globals.css';
 
 // Get current month and year in Norwegian
 const getCurrentMonthYear = () => {
@@ -13,20 +12,14 @@ const getCurrentMonthYear = () => {
 };
 
 export const metadata: Metadata = {
-  title: `Beste og billigste strømavtale (${getCurrentMonthYear()}) - Strømnet.no`,
-  description: 'Sammenlign strømpriser og finn den beste strømavtalen for din bolig. Spar penger på strømregningen med vår gratis prissammenligning.',
+  title: `Billigste fastpris strømavtaler (${getCurrentMonthYear()}) | Strømnet.no`,
+  description: "Sammenlign og finn de billigste fastprisavtalene på strøm. Se hvilke strømleverandører som tilbyr de beste fastprisavtalene akkurat nå.",
 };
 
-export default function RootLayout({
+export default function FastprisStromLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="no">
-      <head>
-      </head>
-      <body>{children}</body>
-    </html>
-  );
-}
+  return <>{children}</>;
+} 
