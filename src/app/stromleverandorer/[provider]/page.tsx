@@ -3,13 +3,19 @@ import { Metadata } from 'next';
 import ProviderDetailClient from './ProviderDetailClient';
 import { notFound } from 'next/navigation';
 
-// Helper function to create consistent slugs
+// Improved helper function to create consistent slugs
 function createSlug(name: string): string {
+  if (!name) return '';
+  
   return name
     .toLowerCase()
-    .replace(/\s+/g, '-')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .replace(/æ/g, 'ae')
+    .replace(/ø/g, 'o')
+    .replace(/å/g, 'a')
+    .replace(/[^\w\s-]/g, '') // Remove all non-word chars except spaces and hyphens
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
+    .trim();                  // Trim leading/trailing whitespace
 }
 
 export async function generateMetadata({ params }: { params: { provider: string } }): Promise<Metadata> {
@@ -32,12 +38,34 @@ export async function generateMetadata({ params }: { params: { provider: string 
     const data = await response.json();
     if (!data.success || !data.data) throw new Error('Invalid response format');
     
-    // Find the provider by slug - using our helper function for consistency
+    // Debug: Log all provider slugs to help diagnose issues
+    console.log('All provider slugs:', data.data.map((p: any) => ({ 
+      name: p.name, 
+      slug: createSlug(p.name),
+      originalSlug: p.name.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    })));
+    
+    // Find the provider by slug - using our improved helper function
     const provider = data.data.find((p: any) => createSlug(p.name) === providerSlug);
     
+    // If not found with the new method, try a more flexible approach
     if (!provider) {
+      // Try a more flexible matching approach
+      const normalizedSlug = providerSlug.replace(/-/g, '').toLowerCase();
+      const flexibleMatch = data.data.find((p: any) => {
+        const candidateSlug = p.name.replace(/\s+/g, '').toLowerCase();
+        return candidateSlug.includes(normalizedSlug) || normalizedSlug.includes(candidateSlug);
+      });
+      
+      if (flexibleMatch) {
+        console.log(`Found provider "${flexibleMatch.name}" using flexible matching for slug: ${providerSlug}`);
+        return {
+          title: `${flexibleMatch.name} | Strømavtaler og priser ${currentMonth} ${currentYear}`,
+          description: `Se alle strømavtaler og priser fra ${flexibleMatch.name}. Sammenlign tilbud og finn den beste strømavtalen for ditt forbruk.`
+        };
+      }
+      
       console.error(`Provider not found with slug: ${providerSlug}`);
-      console.log('Available providers:', data.data.map((p: any) => ({ name: p.name, slug: createSlug(p.name) })));
       return {
         title: 'Strømleverandør ikke funnet',
         description: 'Vi kunne ikke finne den forespurte strømleverandøren.'
@@ -67,7 +95,7 @@ export async function generateStaticParams() {
     const data = await response.json();
     if (!data.success || !data.data) throw new Error('Invalid response format');
     
-    // Create URL-friendly paths for each provider
+    // Create URL-friendly paths for each provider using the improved slug function
     return data.data.map((provider: any) => ({
       provider: createSlug(provider.name)
     }));
@@ -88,13 +116,22 @@ export default async function ProviderDetailPage({ params }: { params: { provide
     const data = await response.json();
     if (!data.success || !data.data) throw new Error('Invalid response format');
     
-    // Find the provider by slug - using our helper function for consistency
-    const provider = data.data.find((p: any) => createSlug(p.name) === providerSlug);
+    // Find the provider by slug using the improved function
+    let provider = data.data.find((p: any) => createSlug(p.name) === providerSlug);
     
+    // If not found with the new method, try a more flexible approach
     if (!provider) {
-      console.error(`Provider not found with slug: ${providerSlug}`);
-      console.log('Available providers:', data.data.map((p: any) => ({ name: p.name, slug: createSlug(p.name) })));
-      notFound();
+      // Try a more flexible matching approach
+      const normalizedSlug = providerSlug.replace(/-/g, '').toLowerCase();
+      provider = data.data.find((p: any) => {
+        const candidateSlug = p.name.replace(/\s+/g, '').toLowerCase();
+        return candidateSlug.includes(normalizedSlug) || normalizedSlug.includes(candidateSlug);
+      });
+      
+      if (!provider) {
+        console.error(`Provider not found with slug: ${providerSlug}`);
+        notFound();
+      }
     }
     
     // Pre-fetch additional data for SEO

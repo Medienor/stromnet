@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: KommunePageProps): Promise<Me
     .join(' ');
   
   return {
-    title: `Strømpriser i ${kommuneNavn} | Finn beste strømavtale`,
+    title: `Strømpris ${kommuneNavn}: De 10 billigste strømavtalene i ${kommuneNavn}`,
     description: `Sammenlign strømpriser og finn de beste strømavtalene i ${kommuneNavn}. Sjekk dagens spotpris og spar penger på strømregningen.`,
   };
 }
