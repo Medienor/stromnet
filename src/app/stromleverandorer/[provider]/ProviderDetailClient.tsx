@@ -25,7 +25,9 @@ interface Provider {
 }
 
 interface ProviderDetailClientProps {
-  provider: Provider;
+  provider: any;
+  initialDeals?: any[];
+  initialSpotPrice?: number;
 }
 
 // Define the product interface based on the actual data structure
@@ -56,7 +58,7 @@ interface ElectricityPriceData {
   areaCode?: string;
 }
 
-export default function ProviderDetailClient({ provider }: ProviderDetailClientProps) {
+export default function ProviderDetailClient({ provider, initialDeals = [], initialSpotPrice = 1.0 }: ProviderDetailClientProps) {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -110,6 +112,10 @@ export default function ProviderDetailClient({ provider }: ProviderDetailClientP
   
   // State to track which product's price breakdown is being shown
   const [showBreakdown, setShowBreakdown] = useState<number | null>(null);
+  
+  // Use the initial data for state initialization
+  const [deals, setDeals] = useState<any[]>(initialDeals);
+  const [spotPrice, setSpotPrice] = useState<number>(initialSpotPrice);
   
   // Fetch providers from API
   useEffect(() => {
@@ -875,6 +881,13 @@ export default function ProviderDetailClient({ provider }: ProviderDetailClientP
     return null;
   };
 
+  // Add this helper function to generate the same slug as in your product page
+  function generateProductSlug(product: any): string {
+    const providerName = product.provider.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const productName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    return `${providerName}-${productName}`;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -1060,7 +1073,9 @@ export default function ProviderDetailClient({ provider }: ProviderDetailClientP
                     )}
                     
                     <div className={`px-6 py-4 border-b ${isCheapest ? 'border-green-200 bg-green-50' : 'border-gray-200'} rounded-t-lg`}>
-                      <h3 className={`text-lg font-semibold ${isCheapest ? 'text-green-800' : 'text-gray-800'}`}>{product.name}</h3>
+                      <Link href={`/stromavtaler/${generateProductSlug(product)}`} className="hover:text-blue-600 transition-colors">
+                        <h3 className={`text-lg font-semibold ${isCheapest ? 'text-green-800' : 'text-gray-800'}`}>{product.name}</h3>
+                      </Link>
                       <p className="text-gray-600 text-sm">
                         {getProductType(product.productType) === 'spot' ? 'Spotpris' : 
                          getProductType(product.productType) === 'fixed' ? 'Fastpris' : 'Variabel pris'}

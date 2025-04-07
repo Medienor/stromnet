@@ -18,6 +18,8 @@ import {
 } from 'chart.js';
 import Image from 'next/image';
 import providerLogoUrls from '../../data/providerLogoUrls';
+// Import the MultiStepForm component
+import MultiStepForm from '../../../components/MultiStepForm';
 
 // Register Chart.js components
 ChartJS.register(
@@ -66,28 +68,52 @@ const XIcon = () => (
   </svg>
 );
 
-// Create a separate component for the consumption slider
+// Completely reworked ConsumptionSlider component with debugging
 function ConsumptionSlider({ value, onChange, onChangeComplete }: { 
   value: number, 
   onChange: (value: number) => void,
   onChangeComplete: (value: number) => void
 }) {
+  // Keep track of the displayed value separately from the actual value
+  const [displayValue, setDisplayValue] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
   
-  const handleMouseDown = () => {
+  // For debugging
+  console.log("Slider render - displayValue:", displayValue, "value:", value, "isDragging:", isDragging);
+  
+  // Update display value when the actual value changes (but not during drag)
+  useEffect(() => {
+    if (!isDragging) {
+      console.log("Updating display value to match actual value:", value);
+      setDisplayValue(value);
+    }
+  }, [value, isDragging]);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseInt(e.target.value);
+    console.log("Slider change:", newValue);
+    setDisplayValue(newValue);
+    // Just update the UI, don't trigger API calls
+    onChange(newValue);
+  };
+  
+  const handleDragStart = () => {
+    console.log("Drag started");
     setIsDragging(true);
   };
   
-  const handleMouseUp = () => {
+  const handleDragEnd = () => {
+    console.log("Drag ended, final value:", displayValue);
     setIsDragging(false);
-    onChangeComplete(value);
+    // Only now do we update the actual value and trigger API calls
+    onChangeComplete(displayValue);
   };
   
   return (
     <div className="mt-2">
       <div className="flex justify-between text-xs text-gray-500 mb-1">
         <span>5 000 kWh</span>
-        <span>{value.toLocaleString()} kWh</span>
+        <span>{displayValue.toLocaleString()} kWh</span>
         <span>30 000 kWh</span>
       </div>
       <input
@@ -95,13 +121,15 @@ function ConsumptionSlider({ value, onChange, onChangeComplete }: {
         min="5000"
         max="30000"
         step="1000"
-        value={value}
+        value={displayValue}
         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-        onChange={(e) => onChange(parseInt(e.target.value))}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onTouchStart={handleMouseDown}
-        onTouchEnd={handleMouseUp}
+        onChange={handleChange}
+        onMouseDown={handleDragStart}
+        onMouseUp={handleDragEnd}
+        onTouchStart={handleDragStart}
+        onTouchEnd={handleDragEnd}
+        // Add these to handle cases where the mouse/touch moves outside the slider
+        onBlur={handleDragEnd}
       />
     </div>
   );
@@ -218,12 +246,26 @@ interface MunicipalityMap {
 }
 
 // Update the component props type
-export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) {
-  const [loadingInitial, setLoadingInitial] = useState(true);
+export default function KommuneClient({ kommuneNavn, initialData }: { 
+  kommuneNavn: string;
+  initialData?: {
+    areaCode: string;
+    deals: ElectricityDeal[];
+    spotPrice: number;
+    averagePrice: number | null;
+    hourlyPrices: HourlyPrice[];
+  }
+}) {
+  const [loadingInitial, setLoadingInitial] = useState(!initialData);
   const [loadingDeals, setLoadingDeals] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [kommuneData, setKommuneData] = useState<any>(null);
-  const [deals, setDeals] = useState<ElectricityDeal[]>([]);
+  const [kommuneData, setKommuneData] = useState<any>(initialData ? {
+    name: kommuneNavn,
+    areaCode: initialData.areaCode,
+    vatExemption: false,
+    elCertificateExemption: false
+  } : null);
+  const [deals, setDeals] = useState<ElectricityDeal[]>(initialData?.deals || []);
   const [consumption, setConsumption] = useState(15000);
   const [sliderValue, setSliderValue] = useState(15000);
   const [postalCode, setPostalCode] = useState('');
@@ -234,6 +276,15 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
   });
   const [localGridsData, setLocalGridsData] = useState<LocalGrid[]>([]);
   const postalInputRef = useRef<HTMLInputElement>(null);
+  
+  // Spot price state
+  const [spotPrice, setSpotPrice] = useState<number>(initialData?.spotPrice || 1.0);
+  const [averagePrice, setAveragePrice] = useState<number | null>(initialData?.averagePrice || null);
+  
+  // Hourly prices state
+  const [hourlyPrices, setHourlyPrices] = useState<HourlyPrice[]>(initialData?.hourlyPrices || []);
+  const [loadingPrices, setLoadingPrices] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
   
   // Collapsible sections state
   const [openSections, setOpenSections] = useState({
@@ -287,35 +338,35 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     console.log(`Initialized postal code map with ${Object.keys(map).length} entries`);
   }, []);
   
-  // Fetch local grids data
+  // Update the useEffect that fetches local grids data
   useEffect(() => {
     async function fetchLocalGrids() {
       try {
+        console.log('Fetching local grids data...');
         const response = await fetch('/api/local-grids');
         if (!response.ok) {
           throw new Error('Failed to fetch local grids data');
         }
         
         const data = await response.json();
+        console.log('Local grids API response:', data);
+        
         if (data.success && Array.isArray(data.data)) {
           setLocalGridsData(data.data);
           
           // Build municipality number to area code map
           const areaCodeMap: Record<number, string> = {};
           data.data.forEach((grid: LocalGrid) => {
-            areaCodeMap[grid.municipalityNumber] = grid.areaCode;
+            if (grid.municipalityNumber && grid.areaCode) {
+              areaCodeMap[grid.municipalityNumber] = grid.areaCode;
+            }
           });
           
           municipalityToAreaCodeMap.current = areaCodeMap;
-          
-          // Store municipality data in the separate ref if it exists in the response
-          if (data.municipalities) {
-            municipalityDataRef.current = {
-              municipalities: data.municipalities
-            };
-          }
-          
+          console.log('Area code map built:', municipalityToAreaCodeMap.current);
           console.log(`Initialized area code map with ${Object.keys(areaCodeMap).length} entries`);
+        } else {
+          console.error('Invalid response format from local-grids API:', data);
         }
       } catch (error) {
         console.error('Error fetching local grids:', error);
@@ -325,7 +376,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     fetchLocalGrids();
   }, []);
   
-  // Function to validate postal code
+  // Update the validatePostalCode function with more logging
   const validatePostalCode = (code: string) => {
     if (code.length !== 4) {
       return { isValid: true, cityName: null };
@@ -335,15 +386,21 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     
     // Look up the postal code in our map
     const municipalityInfo = postalCodeMap.current[code];
+    console.log('Municipality info for postal code:', municipalityInfo);
     
     if (municipalityInfo) {
       // Get the correct area code from the local grids data
-      const areaCode = municipalityToAreaCodeMap.current[municipalityInfo.municipalityNumber] || 'NO';
+      const municipalityNumber = municipalityInfo.municipalityNumber;
+      console.log('Looking up area code for municipality number:', municipalityNumber);
+      console.log('Available area codes:', municipalityToAreaCodeMap.current);
+      
+      const areaCode = municipalityToAreaCodeMap.current[municipalityNumber] || 'NO1';
+      console.log(`Area code for municipality ${municipalityNumber}: ${areaCode}`);
       
       return {
         isValid: true,
         cityName: municipalityInfo.name,
-        municipalityNumber: municipalityInfo.municipalityNumber,
+        municipalityNumber: municipalityNumber,
         areaCode: areaCode
       };
     } else {
@@ -351,7 +408,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     }
   };
   
-  // Handle postal code change
+  // Update the handlePostalCodeChange function to set the area code
   const handlePostalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Allow only numbers and limit to 4 digits
     const sanitizedValue = e.target.value.replace(/\D/g, '').slice(0, 4);
@@ -405,6 +462,12 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
   // Load initial data only once
   useEffect(() => {
     async function fetchInitialData() {
+      // Skip fetching if we have initialData
+      if (initialData) {
+        setLoadingInitial(false);
+        return;
+      }
+      
       setLoadingInitial(true);
       setError(null);
       
@@ -467,32 +530,63 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     }
     
     fetchInitialData();
-  }, [kommuneNavn]);
+  }, [kommuneNavn, initialData]);
   
-  // Fetch spot price
-  const [spotPrice, setSpotPrice] = useState<number>(1.0); // Default spot price in NOK/kWh
-  
+  // Modify the spot price fetch to check for initialData
   useEffect(() => {
+    // Skip fetching if we already have spot price from initialData
+    if (initialData?.spotPrice) {
+      return;
+    }
+    
     async function fetchSpotPrice() {
+      if (!kommuneData?.areaCode) {
+        console.log('No area code available, skipping spot price fetch');
+        return;
+      }
+      
       try {
-        // You can replace this with your actual spot price API
-        const response = await fetch('/api/spot-price');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.price) {
-            setSpotPrice(data.price);
-          }
+        console.log(`Fetching average electricity price for area code: ${kommuneData.areaCode}`);
+        
+        // Use the average-electricity-price API with the area code from postal code
+        const response = await fetch(`/api/average-electricity-price?areaCode=${kommuneData.areaCode}`);
+        
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          // Use the average price from the API (already in øre/kWh)
+          const priceInNOK = data.data.averagePrice / 100; // Convert from øre to NOK
+          setSpotPrice(priceInNOK);
+          setAveragePrice(data.data.averagePrice);
+          
+          // Log the average price for this area
+          console.log(`Average electricity price in ${kommuneData.areaCode}: ${data.data.averagePrice.toFixed(2)} øre/kWh`);
+          console.log(`Current electricity price in ${kommuneData.areaCode}: ${data.data.currentPrice.toFixed(2)} øre/kWh`);
+          console.log(`Data includes ${data.data.daysIncluded} days and ${data.data.totalHoursIncluded} hours`);
+        } else {
+          throw new Error(data.error || 'Invalid API response format');
         }
       } catch (error) {
-        console.error('Error fetching spot price:', error);
+        console.error('Error fetching average electricity price:', error);
       }
     }
     
     fetchSpotPrice();
-  }, []);
+  }, [kommuneData?.areaCode, initialData]);
   
-  // Calculate deals based on real data
+  // Modify the deals calculation to check for initialData
   const calculateDeals = useCallback(async () => {
+    // If we have initialData and this is the first calculation, use those deals
+    if (initialData?.deals && deals.length === 0) {
+      setDeals(initialData.deals);
+      return;
+    }
+    
+    console.log("Calculating deals with consumption:", consumption);
     if (!kommuneData?.areaCode) {
       return;
     }
@@ -534,19 +628,19 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
       
       // Calculate prices for each deal
       const calculatedDeals = filteredByType.map(deal => {
-        // Base spot price in øre/kWh (convert from NOK/kWh)
-        const baseSpotPrice = spotPrice * 100;
+        // Base spot price in øre/kWh (already in øre/kWh from the API)
+        const baseSpotPrice = spotPrice;
         
         // Calculate total price per kWh in øre
-        const addonPrice = deal.addonPrice * 100; // Convert from NOK to øre
-        const elCertificatePrice = (deal.elCertificatePrice || 0) * 100; // Convert from NOK to øre
+        const addonPrice = deal.addonPrice || 0; // Already in øre
+        const elCertificatePrice = deal.elCertificatePrice || 0; // Already in øre
         
         // Total price per kWh in øre
         const totalPricePerKwt = baseSpotPrice + addonPrice + elCertificatePrice;
         
         // Calculate monthly price
         const monthlyConsumption = consumption / 12; // kWh per month
-        const energyCost = (totalPricePerKwt / 100) * monthlyConsumption; // NOK per month
+        const energyCost = (totalPricePerKwt / 100) * monthlyConsumption; // Convert øre to NOK for calculation
         const monthlyFee = deal.monthlyFee || 0; // NOK per month
         
         // Total monthly price in NOK
@@ -573,7 +667,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     } finally {
       setLoadingDeals(false);
     }
-  }, [kommuneData, consumption, selectedTypes, spotPrice]);
+  }, [consumption, kommuneData, selectedTypes, spotPrice, initialData, deals.length]);
   
   // Update deals when filters change
   useEffect(() => {
@@ -868,86 +962,20 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     setCurrentPage(1); // Reset to first page when filter changes
   };
   
-  // Add this state in your component
-  const [hourlyPrices, setHourlyPrices] = useState<HourlyPrice[]>([]);
-  const [loadingPrices, setLoadingPrices] = useState(false);
-  const [priceError, setPriceError] = useState<string | null>(null);
-  
   // Add these refs at the component level, outside any hooks
   const prevAreaCodeRef = useRef<string | null>(null);
   const isFetchingRef = useRef(false);
   
-  // Replace the useEffect with a simpler approach
+  // Modify the hourly prices fetch to check for initialData
   useEffect(() => {
+    // Skip fetching if we already have hourly prices from initialData
+    if (initialData?.hourlyPrices && hourlyPrices.length > 0) {
+      return;
+    }
+    
     // Only proceed if we have an area code and it's different from the previous one
-    // or if this is the first time we're fetching
-    if (!kommuneData?.areaCode) {
-      console.log('No area code available, skipping fetch');
-      return;
-    }
-    
-    if (isFetchingRef.current) {
-      console.log('Already fetching, skipping duplicate request');
-      return;
-    }
-    
-    if (prevAreaCodeRef.current === kommuneData.areaCode) {
-      console.log('Area code unchanged, skipping fetch');
-      return;
-    }
-    
-    // Update the ref to the current area code
-    prevAreaCodeRef.current = kommuneData.areaCode;
-    
-    // Define a one-time fetch function
-    const fetchOnce = async () => {
-      // Set fetching flag to prevent duplicate calls
-      isFetchingRef.current = true;
-      
-      console.log('Starting fetch for area code:', kommuneData.areaCode);
-      setLoadingPrices(true);
-      setPriceError(null);
-      
-      try {
-        // Use today's date in the correct format (YYYY-MM-DD)
-        const today = new Date().toISOString().split('T')[0];
-        
-        const apiUrl = `/api/hourly-prices?date=${today}&areaCode=${kommuneData.areaCode}`;
-        console.log('Fetching from URL:', apiUrl);
-        
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch hourly prices: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          console.log('Successfully fetched price data');
-          setHourlyPrices(data.data);
-        } else {
-          throw new Error(data.error || 'Failed to fetch hourly prices: Invalid response format');
-        }
-      } catch (error: unknown) {
-        console.error('Error fetching hourly prices:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        setPriceError(`Kunne ikke hente timesprisene for i dag: ${errorMessage}`);
-      } finally {
-        setLoadingPrices(false);
-        // Reset fetching flag after a delay to prevent immediate re-fetching
-        setTimeout(() => {
-          isFetchingRef.current = false;
-        }, 5000); // 5 second cooldown
-      }
-    };
-    
-    // Execute the fetch once
-    fetchOnce();
-    
-    // No dependencies - this will only run on mount and when kommuneData changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kommuneData]);
+    // ... existing hourly prices fetch code ...
+  }, [kommuneData, initialData, hourlyPrices.length]);
   
   // Add this helper function to format time
   const formatHourFromTimestamp = (timestamp: string) => {
@@ -1119,10 +1147,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     // Convert map values to array and sort by name
     const sortedProviders = Array.from(uniqueProviders.values())
       .sort((a, b) => a.name.localeCompare(b.name));
-    
-    // Log the sorted providers
-    console.log('Total unique providers:', sortedProviders.length);
-    console.log('Providers list:', sortedProviders);
+  
     
     // Create a formatted list for easy copying
     const formattedList = sortedProviders.map(provider => {
@@ -1133,9 +1158,6 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
       };
     });
     
-    // Log as JSON string for easy copying
-    console.log('Formatted JSON for copying:');
-    console.log(JSON.stringify(formattedList, null, 2));
   }, [deals]); // Add deals as a dependency
   
   // Add a useEffect to log providers when deals are loaded
@@ -1160,10 +1182,255 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
     return '/images/default-provider-logo.png'; // Make sure this file exists in your public folder
   };
   
+  // Add this function to map product types to user-friendly names
+  const getProductTypeName = (productType: string): string => {
+    const productTypeMap: Record<string, string> = {
+      'spot': 'Spotpris',
+      'hourly_spot': 'Timesspot',
+      'fixed': 'Fastpris',
+      'variable': 'Variabel pris',
+      'purchase': 'Innkjøpspris',
+      'plus': 'Pluss',
+      'other': 'Annen type'
+    };
+    
+    return productTypeMap[productType] || productType;
+  };
+  
+  // Add this new useEffect that watches the postalCode state
+  useEffect(() => {
+    // Only proceed if we have a 4-digit postal code
+    if (postalCode.length !== 4) {
+      return;
+    }
+
+    console.log(`Processing postal code ${postalCode} to find area code`);
+
+    // Step 1: Find the municipality number for this postal code from municipalities.json
+    const findMunicipalityNumber = () => {
+      // Type assertion to help TypeScript understand the structure
+      const municipalities = municipalitiesRawData as Municipality[];
+      
+      for (const municipality of municipalities) {
+        if (municipality.postalCodes && municipality.postalCodes.includes(postalCode)) {
+          console.log(`Found municipality for postal code ${postalCode}:`, municipality.name);
+          console.log(`Municipality number:`, municipality.number);
+          return municipality.number;
+        }
+      }
+      
+      console.log(`No municipality found for postal code ${postalCode}`);
+      return null;
+    };
+
+    const municipalityNumber = findMunicipalityNumber();
+    
+    // If we couldn't find a municipality, stop here
+    if (!municipalityNumber) {
+      return;
+    }
+
+    // Step 2: Find the area code for this municipality number from local grids
+    const findAreaCode = async () => {
+      try {
+        console.log(`Fetching local grids to find area code for municipality ${municipalityNumber}`);
+        
+        const response = await fetch('/api/local-grids');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch local grids: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success || !Array.isArray(data.data)) {
+          throw new Error('Invalid response from local-grids API');
+        }
+        
+        // Find the grid entry for this municipality
+        const grid = data.data.find((g: any) => g.municipalityNumber === municipalityNumber);
+        
+        if (grid && grid.areaCode) {
+          console.log(`Found area code for municipality ${municipalityNumber}: ${grid.areaCode}`);
+          
+          // Update the kommune data with the area code
+          setKommuneData(prevData => ({
+            ...prevData,
+            areaCode: grid.areaCode,
+            name: prevData?.name || kommuneNavn // Keep the current kommune name
+          }));
+          
+          console.log(`Updated kommune data with area code: ${grid.areaCode}`);
+        } else {
+          console.log(`No area code found for municipality ${municipalityNumber}, using default NO1`);
+          
+          // Use default area code
+          setKommuneData(prevData => ({
+            ...prevData,
+            areaCode: 'NO1',
+            name: prevData?.name || kommuneNavn // Keep the current kommune name
+          }));
+        }
+      } catch (error) {
+        console.error('Error finding area code:', error);
+      }
+    };
+
+    findAreaCode();
+  }, [postalCode, kommuneNavn]); // This effect runs whenever postalCode changes
+  
+  // Add this new useEffect that gets area code from kommune name in URL
+  useEffect(() => {
+    // Remove the early return that was skipping the lookup
+    console.log(`Looking up area code for kommune: ${kommuneNavn}`);
+
+    // Step 1: Find the municipality number for this kommune name
+    const findMunicipalityNumber = () => {
+      // Type assertion to help TypeScript understand the structure
+      const municipalities = municipalitiesRawData as Municipality[];
+      
+      // Normalize the kommune name for comparison (lowercase, remove special chars)
+      const normalizedKommuneNavn = kommuneNavn
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/-/g, ' ');
+      
+      console.log(`Normalized kommune name for lookup: "${normalizedKommuneNavn}"`);
+      
+      for (const municipality of municipalities) {
+        // Normalize the municipality name for comparison
+        const normalizedMunicipalityName = municipality.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+      
+        if (normalizedMunicipalityName === normalizedKommuneNavn) {
+          console.log(`Found municipality for kommune ${kommuneNavn}:`, municipality.name);
+          console.log(`Municipality number:`, municipality.number);
+          return municipality.number;
+        }
+      }
+      
+      console.log(`No municipality found for kommune ${kommuneNavn}`);
+      return null;
+    };
+
+    const municipalityNumber = findMunicipalityNumber();
+    
+    // If we couldn't find a municipality, use default area code but log it clearly
+    if (!municipalityNumber) {
+      console.log(`WARNING: Could not find municipality number for kommune ${kommuneNavn}`);
+      console.log(`Using default area code NO1 for kommune ${kommuneNavn}`);
+      setKommuneData(prevData => ({
+        ...prevData,
+        areaCode: 'NO1',
+        name: kommuneNavn
+      }));
+      return;
+    }
+
+    // Step 2: Find the area code for this municipality number from local grids
+    const findAreaCode = async () => {
+      try {
+        console.log(`Fetching local grids to find area code for municipality ${municipalityNumber}`);
+        
+        const response = await fetch('/api/local-grids');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch local grids: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success || !Array.isArray(data.data)) {
+          throw new Error('Invalid response from local-grids API');
+        }
+        
+        console.log(`Searching for municipality number ${municipalityNumber} in ${data.data.length} local grid entries`);
+        
+        // Find the grid entry for this municipality
+        const grid = data.data.find((g: any) => g.municipalityNumber === municipalityNumber);
+        
+        if (grid && grid.areaCode) {
+          console.log(`Found area code for municipality ${municipalityNumber}: ${grid.areaCode}`);
+          
+          // Update the kommune data with the area code
+          setKommuneData(prevData => ({
+            ...prevData,
+            areaCode: grid.areaCode,
+            name: kommuneNavn
+          }));
+          
+          console.log(`Updated kommune data with area code: ${grid.areaCode}`);
+        } else {
+          console.log(`No area code found for municipality ${municipalityNumber}, using default NO1`);
+          
+          // Use default area code
+          setKommuneData(prevData => ({
+            ...prevData,
+            areaCode: 'NO1',
+            name: kommuneNavn
+          }));
+        }
+      } catch (error) {
+        console.error('Error finding area code:', error);
+      }
+    };
+
+    findAreaCode();
+  }, [kommuneNavn]); // Only depend on kommuneNavn, not on kommuneData.areaCode
+  
   // Main component render
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      
+      {/* Add Hero Section with imported MultiStepForm */}
+      <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="/bg-img.jpg"
+            alt="Background"
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-5 gap-12 items-center">
+              <div className="text-center md:text-left md:col-span-3">
+                <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                  Strømpriser i {capitalizeWords(kommuneNavn)}
+                </h1>
+                <p className="text-xl mb-8">
+                  Sammenlign strømavtaler og finn den beste strømavtalen for deg i {capitalizeWords(kommuneNavn)}.
+                </p>
+                
+                <div className="flex flex-col md:flex-row gap-4 mb-8 justify-center md:justify-start">
+                  <div className="flex items-center justify-center md:justify-start">
+                    <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span className="text-white text-sm md:text-base">Helt gratis!</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start">
+                    <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span className="text-white text-sm md:text-base">Du sparer penger på strøm!</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Add the imported MultiStepForm in the right column */}
+              <div className="md:col-span-2">
+                <MultiStepForm />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -1192,9 +1459,9 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
                   Strømpriser i {capitalizeWords(kommuneNavn)}
                 </h1>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Filters column */}
-                  <div className="md:col-span-1">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {/* Left column - Filters (with max-width to make it narrower) */}
+                  <div className="lg:col-span-1 lg:max-w-xs">
                     <div className="bg-gray-50 rounded-lg border border-gray-200">
                       <div className="p-4 border-b border-gray-200">
                         <h2 className="text-lg font-semibold">Filtre strømavtaler</h2>
@@ -1202,52 +1469,22 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
                       
                       <div className="p-4 space-y-4">
                         <FilterSection 
-                          title="Postnummer" 
-                          sectionKey="postnummer"
-                          info="Skriv inn postnummer for å se avtaler i ditt område"
-                        >
-                          <div className="relative">
-                            <input
-                              ref={postalInputRef}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              placeholder="F.eks. 0159"
-                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              value={postalCode}
-                              onChange={handlePostalCodeChange}
-                            />
-                            
-                            {postalCode.length === 4 && (
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 mt-1">
-                                {postalCodeValidation.isValid && postalCodeValidation.cityName ? (
-                                  <div className="flex items-center">
-                                    <span className="text-sm text-green-600 mr-2">
-                                      {postalCodeValidation.cityName} 
-                                      {postalCodeValidation.areaCode && ` (${postalCodeValidation.areaCode})`}
-                                    </span>
-                                    <CheckIcon />
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center">
-                                    <span className="text-sm text-red-600 mr-2">Feil postnummer</span>
-                                    <XIcon />
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </FilterSection>
-                        
-                        <FilterSection 
                           title="Forbruk" 
                           sectionKey="forbruk"
                           info="Anslått årlig strømforbruk i kWh"
                         >
                           <ConsumptionSlider 
-                            value={sliderValue}
-                            onChange={handleSliderChange}
-                            onChangeComplete={handleSliderComplete}
+                            value={consumption}
+                            onChange={(value) => {
+                              // Just update UI, no API calls
+                              console.log("Slider onChange:", value);
+                            }}
+                            onChangeComplete={(value) => {
+                              // Update state and trigger API call only when dragging ends
+                              console.log("Slider onChangeComplete:", value);
+                              setConsumption(value);
+                              // The calculateDeals will be called via useEffect that depends on consumption
+                            }}
                           />
                         </FilterSection>
                         
@@ -1484,8 +1721,8 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
                     </div>
                   </div>
                   
-                  {/* Results column */}
-                  <div className="md:col-span-2">
+                  {/* Right column - Deals */}
+                  <div className="lg:col-span-3">
                     <h2 id="results-heading" className="text-xl font-semibold mb-4">
                       Strømavtaler i {capitalizeWords(kommuneNavn)}
                     </h2>
@@ -1541,7 +1778,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
                                       
                                       <td className="px-6 py-4">
                                         <div className="text-sm font-medium text-gray-900">{deal.name}</div>
-                                        <div className="text-xs text-gray-500 mt-1">{deal.productType}</div>
+                                        <div className="text-xs text-gray-600 mt-1">{getProductTypeName(deal.productType)}</div>
                                       </td>
                                       
                                       <td className="px-6 py-4 whitespace-nowrap">
@@ -1615,7 +1852,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
                                                   </div>
                                                   <div>
                                                     <p className="text-xs text-gray-500">Produkttype</p>
-                                                    <p className="text-sm text-gray-700">{deal.productType}</p>
+                                                    <p className="text-sm text-gray-700">{getProductTypeName(deal.productType)}</p>
                                                   </div>
                                                   <div>
                                                     <p className="text-xs text-gray-500">Månedlig avgift</p>
@@ -1662,7 +1899,7 @@ export default function KommuneClient({ kommuneNavn }: { kommuneNavn: string }) 
                                     </div>
                                   )}
                                   <h3 className="text-lg font-medium text-gray-900 text-center">{deal.name}</h3>
-                                  <p className="text-sm text-gray-500 mt-1">{deal.productType}</p>
+                                  <p className="text-sm text-gray-600 mt-1">{getProductTypeName(deal.productType)}</p>
                                 </div>
                                 
                                 {/* Price section */}

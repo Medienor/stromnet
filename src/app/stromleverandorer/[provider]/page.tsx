@@ -57,6 +57,26 @@ export async function generateMetadata({ params }: { params: { provider: string 
   }
 }
 
+// Generate static paths for all providers
+export async function generateStaticParams() {
+  try {
+    // Fetch provider data from our API
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/providers`, { next: { revalidate: 3600 } });
+    if (!response.ok) throw new Error('Failed to fetch providers');
+    
+    const data = await response.json();
+    if (!data.success || !data.data) throw new Error('Invalid response format');
+    
+    // Create URL-friendly paths for each provider
+    return data.data.map((provider: any) => ({
+      provider: createSlug(provider.name)
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
 export default async function ProviderDetailPage({ params }: { params: { provider: string } }) {
   const providerSlug = params.provider;
   
@@ -77,9 +97,32 @@ export default async function ProviderDetailPage({ params }: { params: { provide
       notFound();
     }
     
+    // Pre-fetch additional data for SEO
+    // Fetch electricity deals
+    const dealsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/electricity-deals`, { next: { revalidate: 3600 } });
+    const dealsData = await dealsResponse.json();
+    
+    let initialDeals = [];
+    if (dealsData.success && dealsData.data && dealsData.data.products) {
+      initialDeals = dealsData.data.products;
+    }
+    
+    // Fetch spot price (default to NO1 area code)
+    const spotPriceResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/average-electricity-price?areaCode=NO1`, { next: { revalidate: 3600 } });
+    const spotPriceData = await spotPriceResponse.json();
+    
+    let spotPrice = 1.0;
+    if (spotPriceData.success && spotPriceData.data) {
+      spotPrice = spotPriceData.data.averagePrice / 100; // Convert from øre to NOK
+    }
+    
     return (
       <div className="min-h-screen bg-gray-50">
-        <ProviderDetailClient provider={provider} />
+        <ProviderDetailClient 
+          provider={provider} 
+          initialDeals={initialDeals}
+          initialSpotPrice={spotPrice}
+        />
       </div>
     );
   } catch (error) {
@@ -93,4 +136,7 @@ export default async function ProviderDetailPage({ params }: { params: { provide
       </div>
     );
   }
-} 
+}
+
+// Add this export to enable ISR (Incremental Static Regeneration)
+export const revalidate = 43200; // Revalidate every 12 hours 
