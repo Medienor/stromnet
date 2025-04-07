@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -7,10 +8,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link href="/" className="inline-block mb-6">
-              <div className="text-4xl font-bold">
-                <span className="text-indigo-900">Strøm</span>
-                <span className="text-indigo-700">net</span>
-              </div>
+              <Image 
+                src="/logo.svg" 
+                alt="Strømnet Logo" 
+                width={140} 
+                height={40} 
+                className="dark:invert"
+              />
             </Link>
           </div>
           
