@@ -270,6 +270,14 @@ export default function MultiStepForm() {
 
   const handleNext = () => {
     console.log('handleNext called, current step:', step);
+    
+    // If we're on step 1, redirect to the /tilbud page instead of directly to the affiliate
+    if (step === 1) {
+      router.push('/tilbud');
+      return;
+    }
+    
+    // Original code for other steps
     if (validateStep(step)) {
       console.log('Step validated, moving to next step');
       if (step < totalSteps) {

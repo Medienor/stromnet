@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ArticlesList } from './ArticlesList';
+import fs from 'fs';
+import path from 'path';
 
 export const metadata = {
   title: 'Artikler om strøm og strømavtaler | Strømnet.no',
@@ -22,6 +24,36 @@ export default async function ArticlesPage() {
   if (error) {
     console.error('Error fetching articles:', error);
   }
+  
+  // Check for local images for each article
+  const articlesWithImages = articles?.map(article => {
+    // Check for different image formats
+    const possibleExtensions = ['png', 'webp', 'jpg', 'jpeg'];
+    let foundImagePath = null;
+    
+    for (const ext of possibleExtensions) {
+      // Define the expected image path
+      const imagePath = `/images/${article.ID}.${ext}`;
+      
+      // Check if the image exists in the public folder
+      const fullImagePath = path.join(process.cwd(), 'public', imagePath);
+      
+      if (fs.existsSync(fullImagePath)) {
+        foundImagePath = imagePath;
+        break;
+      }
+    }
+    
+    // Override the Image URL if a local image is found
+    if (foundImagePath) {
+      return {
+        ...article,
+        "Image URL": foundImagePath
+      };
+    }
+    
+    return article;
+  }) || [];
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -88,7 +120,7 @@ export default async function ArticlesPage() {
             
             <div className="max-w-5xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {articles && articles.map((article) => (
+                {articlesWithImages.map((article) => (
                   <Link 
                     key={article.ID} 
                     href={`/artikler/${article.Slug}`}

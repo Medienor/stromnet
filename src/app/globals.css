@@ -11,14 +11,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light only;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Remove or comment out this media query to prevent dark mode adaptation */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   color: var(--foreground);
@@ -33,7 +35,7 @@ body {
   margin-top: 2.5rem;
   margin-bottom: 1.5rem;
   line-height: 1.2;
-  color: #1a202c;
+  color: #1a202c !important;
   scroll-margin-top: 100px;
 }
 
@@ -43,7 +45,7 @@ body {
   margin-top: 2.5rem;
   margin-bottom: 1.25rem;
   line-height: 1.3;
-  color: #1a202c;
+  color: #1a202c !important;
   border-bottom: 1px solid #e2e8f0;
   padding-bottom: 0.5rem;
   scroll-margin-top: 100px;
@@ -55,7 +57,7 @@ body {
   margin-top: 2rem;
   margin-bottom: 1rem;
   line-height: 1.4;
-  color: #2d3748;
+  color: #2d3748 !important;
   scroll-margin-top: 100px;
 }
 
@@ -65,7 +67,7 @@ body {
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
   line-height: 1.5;
-  color: #2d3748;
+  color: #2d3748 !important;
   scroll-margin-top: 100px;
 }
 
@@ -75,7 +77,7 @@ body {
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   line-height: 1.5;
-  color: #4a5568;
+  color: #4a5568 !important;
   scroll-margin-top: 100px;
 }
 
@@ -85,7 +87,7 @@ body {
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   line-height: 1.5;
-  color: #4a5568;
+  color: #4a5568 !important;
   scroll-margin-top: 100px;
 }
 
@@ -93,7 +95,7 @@ body {
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
   line-height: 1.7;
-  color: #4a5568;
+  color: #4a5568 !important;
   font-size: 1.125rem;
 }
 
@@ -115,18 +117,18 @@ body {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   line-height: 1.7;
-  color: #4a5568;
+  color: #4a5568 !important;
 }
 
 .article-content a {
-  color: #4f46e5;
+  color: #4f46e5 !important;
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.2s;
 }
 
 .article-content a:hover {
-  color: #4338ca;
+  color: #4338ca !important;
 }
 
 .article-content blockquote {

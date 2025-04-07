@@ -1,6 +1,14 @@
 import { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
+import { Inter } from 'next/font/google';
+
+// Initialize the Inter font
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 // Get current month and year in Norwegian
 const getCurrentMonthYear = () => {
@@ -23,10 +31,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="no">
+    <html lang="nb" className={`${inter.variable}`}>
       <head>
       </head>
-      <body>{children}</body>
+      <body className="min-h-screen bg-white">
+        {children}
+      </body>
     </html>
   );
 }

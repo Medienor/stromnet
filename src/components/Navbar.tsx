@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import municipalitiesData from '../app/data/municipalities.json';
@@ -181,11 +182,16 @@ export default function Navbar() {
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo */}
+          {/* Logo - Updated to use SVG image */}
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
-              <span className="text-indigo-900">Strøm</span>
-              <span className="text-indigo-700">net</span>
+            <Link href="/" className="flex items-center">
+              <Image 
+                src="/logo.svg" 
+                alt="Strømnet Logo" 
+                width={140} 
+                height={40} 
+                priority
+              />
             </Link>
           </div>
           

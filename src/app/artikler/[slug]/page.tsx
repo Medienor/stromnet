@@ -6,6 +6,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TableOfContents from './TableOfContents';
 import RelatedArticles from './RelatedArticles';
+import fs from 'fs';
+import path from 'path';
 
 // Generate metadata for the page
 export async function generateMetadata({ params }) {
@@ -48,7 +50,7 @@ export default async function ArticlePage({ params }) {
       <main className="flex-grow bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Breadcrumbs */}
-          <nav className="mb-8">
+          <nav className="mb-6">
             <ol className="flex items-center space-x-2 text-sm text-gray-600">
               <li>
                 <Link href="/" className="hover:text-indigo-600 transition-colors">
@@ -76,11 +78,13 @@ export default async function ArticlePage({ params }) {
             </ol>
           </nav>
           
-          {/* Article Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">{article.Title}</h1>
+          {/* Article Header - Updated styling */}
+          <div className="mb-6">
+            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-3 leading-tight font-inter">
+              {article.Title}
+            </h1>
             {article.Date && (
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-base">
                 Publisert: {new Date(article.Date).toLocaleDateString('nb-NO', {
                   year: 'numeric',
                   month: 'long',
@@ -90,16 +94,18 @@ export default async function ArticlePage({ params }) {
             )}
           </div>
           
-          {/* Featured Image */}
+          {/* Featured Image - Updated styling */}
           {article["Image URL"] && (
-            <div className="relative h-64 md:h-96 w-full mb-10 rounded-xl overflow-hidden shadow-lg">
-              <Image 
-                src={article["Image URL"]} 
-                alt={article["Image Alt Text"] || article.Title} 
-                fill
-                className="object-cover"
-                priority
-              />
+            <div className="mb-8">
+              <div className="relative w-full md:w-1/2 h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
+                <Image 
+                  src={article["Image URL"]} 
+                  alt={article["Image Alt Text"] || article.Title} 
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
           )}
           
@@ -177,6 +183,31 @@ async function getArticleBySlug(slug) {
       return null;
     }
     
+    // Always check for local images, regardless of whether there's an existing Image URL
+    if (data) {
+      // Check for different image formats
+      const possibleExtensions = ['png', 'webp', 'jpg', 'jpeg'];
+      let foundImagePath = null;
+      
+      for (const ext of possibleExtensions) {
+        // Define the expected image path
+        const imagePath = `/images/${data.ID}.${ext}`;
+        
+        // Check if the image exists in the public folder
+        const fullImagePath = path.join(process.cwd(), 'public', imagePath);
+        
+        if (fs.existsSync(fullImagePath)) {
+          foundImagePath = imagePath;
+          break;
+        }
+      }
+      
+      // Override the Image URL if a local image is found
+      if (foundImagePath) {
+        data["Image URL"] = foundImagePath;
+      }
+    }
+    
     return data;
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -200,7 +231,37 @@ async function getRelatedArticles(currentArticleId, limit = 3) {
       return [];
     }
     
-    return data;
+    // Always check for local images for each related article
+    const articlesWithImages = data.map(article => {
+      // Check for different image formats
+      const possibleExtensions = ['png', 'webp', 'jpg', 'jpeg'];
+      let foundImagePath = null;
+      
+      for (const ext of possibleExtensions) {
+        // Define the expected image path
+        const imagePath = `/images/${article.ID}.${ext}`;
+        
+        // Check if the image exists in the public folder
+        const fullImagePath = path.join(process.cwd(), 'public', imagePath);
+        
+        if (fs.existsSync(fullImagePath)) {
+          foundImagePath = imagePath;
+          break;
+        }
+      }
+      
+      // Override the Image URL if a local image is found
+      if (foundImagePath) {
+        return {
+          ...article,
+          "Image URL": foundImagePath
+        };
+      }
+      
+      return article;
+    });
+    
+    return articlesWithImages;
   } catch (error) {
     console.error('Unexpected error:', error);
     return [];
