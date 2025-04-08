@@ -31,11 +31,11 @@ export default function Footer() {
           <div>
             <h3 className="text-gray-600 uppercase text-sm font-medium tracking-wider mb-4">OMRÅDER</h3>
             <ul className="space-y-2">
-              <li><Link href="/kommuner/oslo" className="text-gray-700 hover:text-indigo-700">Oslo</Link></li>
-              <li><Link href="/kommuner/bergen" className="text-gray-700 hover:text-indigo-700">Bergen</Link></li>
-              <li><Link href="/kommuner/trondheim" className="text-gray-700 hover:text-indigo-700">Trondheim</Link></li>
-              <li><Link href="/kommuner/stavanger" className="text-gray-700 hover:text-indigo-700">Stavanger</Link></li>
-              <li><Link href="/kommuner" className="text-gray-700 hover:text-indigo-700">Alle kommuner</Link></li>
+              <li><Link href="/kommune/oslo" className="text-gray-700 hover:text-indigo-700">Oslo</Link></li>
+              <li><Link href="/kommune/bergen" className="text-gray-700 hover:text-indigo-700">Bergen</Link></li>
+              <li><Link href="/kommune/trondheim" className="text-gray-700 hover:text-indigo-700">Trondheim</Link></li>
+              <li><Link href="/kommune/stavanger" className="text-gray-700 hover:text-indigo-700">Stavanger</Link></li>
+              <li><Link href="/kommune" className="text-gray-700 hover:text-indigo-700">Alle kommuner</Link></li>
             </ul>
           </div>
           

@@ -34,7 +34,7 @@ ChartJS.register(
 );
 
 // Correct the import path - adjust based on your actual file structure
-import municipalitiesRawData from '../../../app/data/municipalities.json';
+import municipalitiesRawData from '../../data/municipalities.json';
 
 // Simple SVG icons to replace Heroicons
 const ChevronDownIcon = () => (

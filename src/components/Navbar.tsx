@@ -113,12 +113,16 @@ export default function Navbar() {
       // Convert municipality name to URL-friendly format
       const nameForUrl = result.name
         .toLowerCase()
-        .replace(/\s+/g, '-')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, ''); // Remove diacritics
+        .replace(/æ/g, 'ae')
+        .replace(/ø/g, 'o')
+        .replace(/å/g, 'a')
+        .replace(/[^\w\s-]/g, '') // Remove all non-word chars except spaces and hyphens
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
+        .trim();                  // Trim leading/trailing whitespace
       
-      // Navigate to the municipality page
-      router.push(`/kommuner/${nameForUrl}`);
+      // Navigate to the municipality page with the new path
+      router.push(`/kommune/${nameForUrl}`);
     } else if (result.type === 'provider' && result.slug) {
       // Navigate to the provider page using slug
       router.push(`/stromleverandorer/${result.slug}`);
