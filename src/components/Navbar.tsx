@@ -183,7 +183,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md font-inter">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo - Updated to use SVG image */}
@@ -200,17 +200,18 @@ export default function Navbar() {
           </div>
           
           {/* Desktop Navigation - hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link href="/stromavtaler" className="px-3 py-2 text-gray-700 font-medium hover:text-blue-600">Strømavtale</Link>
-            <Link href="/spotpris" className="px-3 py-2 text-gray-700 font-medium hover:text-blue-600">Spotpris</Link>
-            <Link href="/fastpris-strom" className="px-3 py-2 text-gray-700 font-medium hover:text-blue-600">Fastpris</Link>
-            <Link href="/dagens-strompris" className="px-3 py-2 text-gray-700 font-medium hover:text-blue-600">Dagens strømpris</Link>
-            <Link href="/bedrift" className="px-3 py-2 text-gray-700 font-medium hover:text-blue-600">Bedrift</Link>
+          <div className="hidden md:flex items-center space-x-2">
+            <Link href="/stromavtaler" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Strømavtale</Link>
+            <Link href="/spotpris" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Spotpris</Link>
+            <Link href="/fastpris-strom" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Fastpris</Link>
+            <Link href="/dagens-strompris" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Dagens strømpris</Link>
+            <Link href="/stromtest" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Test din strømavtale ⚡</Link>
+            <Link href="/bedrift" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Bedrift</Link>
             
             {/* Search icon button */}
             <button 
               onClick={openSearchModal}
-              className="px-3 py-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+              className="px-2 py-2 text-gray-700 hover:text-blue-600 focus:outline-none"
               aria-label="Search"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,6 +341,13 @@ export default function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Dagens strømpris
+            </Link>
+            <Link 
+              href="/stromtest" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Test din strømavtale ⚡
             </Link>
             <Link 
               href="/bedrift" 

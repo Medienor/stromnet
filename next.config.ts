@@ -238,6 +238,11 @@ const nextConfig: NextConfig = {
         destination: '/artikler/kompensasjon-ved-strombrudd',
         permanent: true,
       },
+      {
+        source: '/strom-med-betalingsanmerkning',
+        destination: '/artikler/strom-med-betalingsanmerkning', 
+        permanent: true,
+      },
       // Include all dynamically generated redirects
       ...articleRedirects,
     ];
