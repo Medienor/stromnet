@@ -67,6 +67,7 @@ type OrganizationNumber = keyof ProviderLogoUrls;
 
 export default function ElectricityDealTester() {
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [isProvidersLoading, setIsProvidersLoading] = useState(true);
   const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [postalCode, setPostalCode] = useState<string>('');
@@ -85,11 +86,11 @@ export default function ElectricityDealTester() {
   // Fetch providers and deals
   useEffect(() => {
     const fetchDeals = async () => {
+      setIsProvidersLoading(true);
       try {
         const response = await fetch('/api/electricity-deals');
         const data = await response.json();
         if (data.success) {
-          // Group products by provider
           const providerMap = data.data.products.reduce((acc, product) => {
             if (!acc[product.provider.name]) {
               acc[product.provider.name] = {
@@ -104,6 +105,8 @@ export default function ElectricityDealTester() {
         }
       } catch (error) {
         console.error('Error fetching deals:', error);
+      } finally {
+        setIsProvidersLoading(false);
       }
     };
     fetchDeals();
@@ -254,21 +257,46 @@ export default function ElectricityDealTester() {
             className="bg-white rounded-lg shadow-lg p-8"
           >
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Velg din nåværende strømleverandør</h3>
-            <select 
-              value={selectedProvider}
-              onChange={(e) => {
-                setSelectedProvider(e.target.value);
-                handleNextStep();
-              }}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Velg leverandør</option>
-              {providers.map(provider => (
-                <option key={provider.name} value={provider.name}>
-                  {provider.name}
-                </option>
-              ))}
-            </select>
+            
+            {isProvidersLoading ? (
+              <div className="text-center py-8">
+                <div className="flex justify-center mb-4">
+                  <motion.div
+                    animate={{
+                      rotate: 360
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    className="w-12 h-12"
+                  >
+                    <svg className="w-full h-full text-blue-500" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  </motion.div>
+                </div>
+                <p className="text-gray-600">Henter alle strømleverandører...</p>
+              </div>
+            ) : (
+              <select 
+                value={selectedProvider}
+                onChange={(e) => {
+                  setSelectedProvider(e.target.value);
+                  handleNextStep();
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Velg leverandør</option>
+                {providers.map(provider => (
+                  <option key={provider.name} value={provider.name}>
+                    {provider.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </motion.div>
         );
 

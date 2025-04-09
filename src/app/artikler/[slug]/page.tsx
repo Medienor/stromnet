@@ -9,6 +9,9 @@ import RelatedArticles from './RelatedArticles';
 import fs from 'fs';
 import path from 'path';
 
+// Add revalidation
+export const revalidate = 3600; // Revalidate every hour
+
 // Generate metadata for the page
 export async function generateMetadata({ params }) {
   // Properly handle params by using destructuring with await
@@ -30,12 +33,27 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ArticlePage({ params }) {
-  // Properly handle params by using destructuring with await
-  const { slug } = await Promise.resolve(params);
-  
-  const article = await getArticleBySlug(slug);
-  
+// Generate static params
+export async function generateStaticParams() {
+  const { data: articles } = await supabase
+    .from('articles')
+    .select('Slug')
+    .eq('Status', 'publish');
+
+  return articles?.map(({ Slug }) => ({
+    slug: Slug,
+  })) || [];
+}
+
+// Add dynamic route handling
+export default async function ArticlePage({ params }: { params: { slug: string } }) {
+  const { data: article } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('Slug', params.slug)
+    .eq('Status', 'publish')
+    .single();
+
   if (!article) {
     notFound();
   }
@@ -262,28 +280,6 @@ async function getRelatedArticles(currentArticleId, limit = 3) {
     });
     
     return articlesWithImages;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return [];
-  }
-}
-
-// Generate static paths for all articles
-export async function generateStaticParams() {
-  try {
-    const { data: articles, error } = await supabase
-      .from('articles')
-      .select('Slug')
-      .eq('Status', 'publish');
-    
-    if (error) {
-      console.error('Error fetching article slugs:', error);
-      return [];
-    }
-    
-    return articles.map(article => ({
-      slug: article.Slug
-    }));
   } catch (error) {
     console.error('Unexpected error:', error);
     return [];
