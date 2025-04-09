@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TableOfContents from './TableOfContents';
 import RelatedArticles from './RelatedArticles';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 // Use ISR for individual articles too
@@ -48,12 +48,7 @@ export async function generateStaticParams() {
 // Add dynamic route handling
 export const dynamic = 'force-dynamic';
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
-  const { data: article } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('Slug', params.slug)
-    .eq('Status', 'publish')
-    .single();
+  const article = await getArticleBySlug(params);
 
   if (!article) {
     notFound();
@@ -114,18 +109,15 @@ export default async function ArticlePage({ params }: { params: { slug: string }
           </div>
           
           {/* Featured Image - Updated styling */}
-          {article["Image URL"] && (
-            <div className="mb-8">
-              <div className="relative w-full md:w-1/2 h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
-                <Image 
-                  src={article["Image URL"]}
-                  alt={article.Title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          )}
+          <div className="relative w-full aspect-[16/9] mb-8">
+            <Image 
+              src={`/images/${article.ID}.${article.imageExtension || 'jpg'}`}
+              alt={article.Title}
+              fill
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
           
           {/* Two-column layout */}
           <div className="flex flex-col lg:flex-row gap-8">
@@ -187,42 +179,39 @@ export default async function ArticlePage({ params }: { params: { slug: string }
 }
 
 // Function to get article by slug
-async function getArticleBySlug(slug) {
+async function getArticleBySlug(params) {
   try {
+    // Make sure to await params.slug
     const { data, error } = await supabase
       .from('articles')
       .select('*')
-      .eq('Slug', slug)
+      .eq('Slug', await params.slug)
       .eq('Status', 'publish')
       .single();
-    
-    if (error) {
-      console.error('Error fetching article:', error);
-      return null;
-    }
+
+    if (error) throw error;
     
     if (data) {
-      // Clear any existing WordPress URL first
-      data["Image URL"] = null;
+      // Default extension if none is found
+      let foundExtension = 'webp';
       
-      // Only set local image path
-      if (data.ID) {
-        // Try each extension in order
-        data["Image URL"] = `/images/${data.ID}.webp`;  // try webp first
-        data["Image URL"] = `/images/${data.ID}.jpg`;   // or jpg
-        data["Image URL"] = `/images/${data.ID}.jpeg`;  // or jpeg
-        data["Image URL"] = `/images/${data.ID}.png`;   // or png
+      // Check which extension exists
+      const extensions = ['jpg', 'png', 'jpeg', 'webp'];
+      const publicDir = path.join(process.cwd(), 'public', 'images');
+      
+      for (const ext of extensions) {
+        const filePath = path.join(publicDir, `${data.ID}.${ext}`);
+        try {
+          await fs.access(filePath);
+          foundExtension = ext;
+          break;
+        } catch {
+          continue;
+        }
       }
-
-      // Remove any WordPress URLs from the content if they exist
-      if (data.Content) {
-        data.Content = data.Content.replace(/https:\/\/xn--strmnet-s1a.no\/wp-content\/uploads/g, '/images');
-      }
-      if (data.Excerpt) {
-        data.Excerpt = data.Excerpt.replace(/https:\/\/xn--strmnet-s1a.no\/wp-content\/uploads/g, '/images');
-      }
-    } else {
-      console.log('No data found for slug:', slug);
+      
+      // Always set an extension, even if we didn't find the file
+      data.imageExtension = foundExtension;
     }
     
     return data;
