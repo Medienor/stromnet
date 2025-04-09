@@ -12,18 +12,15 @@ export const metadata = {
   description: 'Les våre artikler om strøm, strømavtaler, strømleverandører og alt annet du trenger å vite om strømmarkedet i Norge.',
 };
 
-// Add revalidation
 export const revalidate = 3600; // Revalidate every hour
 
 // This becomes a Server Component
 export default async function ArticlesPage() {
-  // Force dynamic fetch
   const { data: articles, error } = await supabase
     .from('articles')
     .select('*')
     .eq('Status', 'publish')
-    .order('Date', { ascending: false })
-    .throwOnError(); // This will throw if there's an error
+    .order('Date', { ascending: false });
   
   if (error) {
     console.error('Error fetching articles:', error);

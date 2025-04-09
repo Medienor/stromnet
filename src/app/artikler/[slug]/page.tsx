@@ -9,8 +9,8 @@ import RelatedArticles from './RelatedArticles';
 import fs from 'fs';
 import path from 'path';
 
-// Add revalidation
-export const revalidate = 3600; // Revalidate every hour
+// Use ISR for individual articles too
+export const revalidate = 3600;
 
 // Generate metadata for the page
 export async function generateMetadata({ params }) {
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-// Generate static params
+// Generate static paths at build time for SEO
 export async function generateStaticParams() {
   const { data: articles } = await supabase
     .from('articles')
@@ -46,6 +46,7 @@ export async function generateStaticParams() {
 }
 
 // Add dynamic route handling
+export const dynamic = 'force-dynamic';
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   const { data: article } = await supabase
     .from('articles')
@@ -117,11 +118,10 @@ export default async function ArticlePage({ params }: { params: { slug: string }
             <div className="mb-8">
               <div className="relative w-full md:w-1/2 h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
                 <Image 
-                  src={article["Image URL"]} 
-                  alt={article["Image Alt Text"] || article.Title} 
+                  src={article["Image URL"]}
+                  alt={article.Title}
                   fill
                   className="object-cover"
-                  priority
                 />
               </div>
             </div>
@@ -201,29 +201,28 @@ async function getArticleBySlug(slug) {
       return null;
     }
     
-    // Always check for local images, regardless of whether there's an existing Image URL
     if (data) {
-      // Check for different image formats
-      const possibleExtensions = ['png', 'webp', 'jpg', 'jpeg'];
-      let foundImagePath = null;
+      // Clear any existing WordPress URL first
+      data["Image URL"] = null;
       
-      for (const ext of possibleExtensions) {
-        // Define the expected image path
-        const imagePath = `/images/${data.ID}.${ext}`;
-        
-        // Check if the image exists in the public folder
-        const fullImagePath = path.join(process.cwd(), 'public', imagePath);
-        
-        if (fs.existsSync(fullImagePath)) {
-          foundImagePath = imagePath;
-          break;
-        }
+      // Only set local image path
+      if (data.ID) {
+        // Try each extension in order
+        data["Image URL"] = `/images/${data.ID}.webp`;  // try webp first
+        data["Image URL"] = `/images/${data.ID}.jpg`;   // or jpg
+        data["Image URL"] = `/images/${data.ID}.jpeg`;  // or jpeg
+        data["Image URL"] = `/images/${data.ID}.png`;   // or png
       }
-      
-      // Override the Image URL if a local image is found
-      if (foundImagePath) {
-        data["Image URL"] = foundImagePath;
+
+      // Remove any WordPress URLs from the content if they exist
+      if (data.Content) {
+        data.Content = data.Content.replace(/https:\/\/xn--strmnet-s1a.no\/wp-content\/uploads/g, '/images');
       }
+      if (data.Excerpt) {
+        data.Excerpt = data.Excerpt.replace(/https:\/\/xn--strmnet-s1a.no\/wp-content\/uploads/g, '/images');
+      }
+    } else {
+      console.log('No data found for slug:', slug);
     }
     
     return data;
@@ -249,34 +248,20 @@ async function getRelatedArticles(currentArticleId, limit = 3) {
       return [];
     }
     
-    // Always check for local images for each related article
+    // Map articles and preserve their image extensions
     const articlesWithImages = data.map(article => {
-      // Check for different image formats
-      const possibleExtensions = ['png', 'webp', 'jpg', 'jpeg'];
-      let foundImagePath = null;
-      
-      for (const ext of possibleExtensions) {
-        // Define the expected image path
-        const imagePath = `/images/${article.ID}.${ext}`;
-        
-        // Check if the image exists in the public folder
-        const fullImagePath = path.join(process.cwd(), 'public', imagePath);
-        
-        if (fs.existsSync(fullImagePath)) {
-          foundImagePath = imagePath;
-          break;
+      let extension = 'webp'; // default
+      if (article["Image URL"]) {
+        const match = article["Image URL"].match(/\.(png|webp|jpg|jpeg)$/i);
+        if (match) {
+          extension = match[1].toLowerCase();
         }
       }
       
-      // Override the Image URL if a local image is found
-      if (foundImagePath) {
-        return {
-          ...article,
-          "Image URL": foundImagePath
-        };
-      }
-      
-      return article;
+      return {
+        ...article,
+        "Image URL": `/images/${article.ID}.${extension}`
+      };
     });
     
     return articlesWithImages;
