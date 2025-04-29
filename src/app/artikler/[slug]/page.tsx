@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import StickyCtaBanner from '@/components/StickyCtaBanner';
 import TableOfContents from './TableOfContents';
 import RelatedArticles from './RelatedArticles';
 import { promises as fs } from 'fs';
@@ -13,10 +14,10 @@ import path from 'path';
 export const revalidate = 3600;
 
 // Generate metadata for the page
-export async function generateMetadata({ params }) {
-  // Properly handle params by using destructuring with await
-  const { slug } = await Promise.resolve(params);
-  
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  // Simpler slug extraction
+  const { slug } = params;
+
   const article = await getArticleBySlug(slug);
   
   if (!article) {
@@ -48,7 +49,7 @@ export async function generateStaticParams() {
 // Add dynamic route handling
 export const dynamic = 'force-dynamic';
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
-  const article = await getArticleBySlug(params);
+  const article = await getArticleBySlug(params.slug);
 
   if (!article) {
     notFound();
@@ -173,25 +174,43 @@ export default async function ArticlePage({ params }: { params: { slug: string }
         </div>
       </main>
       
+      <StickyCtaBanner />
       <Footer />
     </div>
   );
 }
 
 // Function to get article by slug
-async function getArticleBySlug(params) {
+async function getArticleBySlug(slug: string) {
+  // Check if slug is valid before querying
+  if (!slug) {
+    console.error('getArticleBySlug called with invalid slug:', slug);
+    return null;
+  }
+  // Add detailed logging for the specific slug causing issues
+  console.log(`[getArticleBySlug] Attempting to fetch article with slug: ${slug}`);
   try {
-    // Make sure to await params.slug
     const { data, error } = await supabase
       .from('articles')
       .select('*')
-      .eq('Slug', await params.slug)
+      // Use the slug string directly in the query
+      .eq('Slug', slug)
       .eq('Status', 'publish')
       .single();
 
-    if (error) throw error;
-    
+    if (error) {
+      // Log the specific Supabase error
+      console.error(`[getArticleBySlug] Supabase error fetching article by slug '${slug}':`, error);
+      // Handle specific errors like 'PGRST116' (No rows found) gracefully
+      if (error.code === 'PGRST116') {
+        console.log(`[getArticleBySlug] Article with slug '${slug}' not found or not published.`);
+        return null; // Not found is not an unexpected error
+      }
+      throw error; // Re-throw other errors
+    }
+
     if (data) {
+      console.log(`[getArticleBySlug] Successfully fetched article data for slug '${slug}'. ID: ${data.ID}`);
       // Default extension if none is found
       let foundExtension = 'webp';
       
@@ -204,19 +223,26 @@ async function getArticleBySlug(params) {
         try {
           await fs.access(filePath);
           foundExtension = ext;
+          console.log(`[getArticleBySlug] Found image file for ID ${data.ID} with extension: ${ext}`);
           break;
         } catch {
+          // console.log(`[getArticleBySlug] Image file ${data.ID}.${ext} not found.`); // Optional: uncomment for very detailed debugging
           continue;
         }
       }
       
       // Always set an extension, even if we didn't find the file
       data.imageExtension = foundExtension;
+      console.log(`[getArticleBySlug] Set imageExtension to '${foundExtension}' for article ID ${data.ID}`);
+    } else {
+      // This case should technically be covered by error.code === 'PGRST116', but log just in case
+      console.log(`[getArticleBySlug] No data returned for slug '${slug}', but no Supabase error reported.`);
     }
     
     return data;
   } catch (error) {
-    console.error('Unexpected error:', error);
+    // Log the caught error
+    console.error(`[getArticleBySlug] Unexpected error fetching article with slug '${slug}':`, error);
     return null;
   }
 }
