@@ -26,7 +26,7 @@ async function generateRedirects() {
         // Extract the slug from the permalink
         let oldSlug = article.Permalink;
         
-        // Handle full URLs like https://xn--strmnet-s1a.no/kommuner/slug
+
         if (oldSlug && oldSlug.includes('://')) {
           const url = new URL(oldSlug);
           oldSlug = url.pathname;
