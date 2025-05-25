@@ -287,7 +287,11 @@ export default function Navbar({
             <input
               type="text"
               placeholder="Søk etter kommune..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isOnTilbudPage 
+                  ? 'bg-transparent text-white placeholder-white placeholder:opacity-70' 
+                  : 'text-black placeholder-gray-500'
+              }`}
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => searchTerm.length > 1 && setShowResults(true)}
@@ -332,42 +336,42 @@ export default function Navbar({
           <div className="px-2 pt-2 pb-3 space-y-1">
             <Link 
               href="/stromavtaler" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Strømavtale
             </Link>
             <Link 
               href="/spotpris" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Spotpris
             </Link>
             <Link 
               href="/fastpris-strom" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Fastpris
             </Link>
             <Link 
               href="/dagens-strompris" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Dagens strømpris
             </Link>
             <Link 
               href="/stromtest" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Test din strømavtale ⚡
             </Link>
             <Link 
               href="/bedrift" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Bedrift

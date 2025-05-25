@@ -319,7 +319,7 @@ export default function FastprisStromPage() {
               <div className="grid md:grid-cols-5 gap-12 items-center">
                 <div className="text-center md:text-left md:col-span-3">
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                    Finn beste og billigste fastpris strøm (mars 2025)
+                    Finn beste og billigste fastpris strøm ({getCurrentMonthName()} {new Date().getFullYear()})
                   </h1>
                   <p className="text-xl mb-8">
                     Sammenlign fastprisavtaler og finn den beste strømavtalen for deg.

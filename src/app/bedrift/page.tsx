@@ -8,6 +8,15 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MultiStepForm from '@/components/MultiStepForm';
 
+// Function to get the current month name in Norwegian
+const getCurrentMonthName = () => {
+  const months = [
+    'januar', 'februar', 'mars', 'april', 'mai', 'juni',
+    'juli', 'august', 'september', 'oktober', 'november', 'desember'
+  ];
+  const currentMonth = new Date().getMonth(); // 0-indexed
+  return months[currentMonth];
+};
 
 export default function BusinessPage() {
   return (
@@ -37,7 +46,9 @@ export default function BusinessPage() {
             <div className="max-w-6xl mx-auto">
               <div className="grid md:grid-cols-5 gap-12 items-center">
                 <div className="text-center md:text-left md:col-span-3">
-                  <h1 className="text-4xl md:text-5xl font-bold mb-6">Billigste og beste strømavtale bedrift (mars 2025)</h1>
+                  <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                    Billigste og beste strømavtale bedrift ({getCurrentMonthName()} {new Date().getFullYear()})
+                  </h1>
                   <p className="text-xl mb-8">La strømleverandørene konkurrere om å gi din bedrift de beste strømavtalene</p>
                   
                   <div className="flex flex-col md:flex-row gap-4 mb-8 justify-center md:justify-start">

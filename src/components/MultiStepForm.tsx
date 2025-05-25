@@ -368,6 +368,7 @@ export default function MultiStepForm() {
             source: 'strom-form',
             postcode: formData.postalCode,
             company: formData.customerType === 'housing' ? formData.housingAssociationName : '',
+            SID: 21,
             
             // Custom fields for this form
             customerType: formData.customerType,
@@ -428,6 +429,7 @@ export default function MultiStepForm() {
             source: 'strom-form-business',
             postcode: '',
             company: formData.companyName,
+            SID: 21,
             
             // Custom fields for business form
             customerType: formData.customerType,
