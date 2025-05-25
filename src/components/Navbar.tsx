@@ -3,10 +3,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import municipalitiesData from '../app/data/municipalities.json';
 
-export default function Navbar() {
+interface NavbarProps {
+  transparent?: boolean;
+  textColor?: string;
+  hoverColor?: string;
+  backgroundColor?: string;
+}
+
+export default function Navbar({ 
+  transparent = false, 
+  textColor = 'text-gray-700', 
+  hoverColor = 'hover:text-blue-600',
+  backgroundColor = 'bg-white'
+}: NavbarProps = {}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Array<{
     type: 'municipality' | 'provider',
@@ -23,6 +35,8 @@ export default function Navbar() {
   const searchRef = useRef<HTMLDivElement>(null);
   const searchModalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const isOnTilbudPage = pathname === '/tilbud';
 
   // Load municipalities data
   useEffect(() => {
@@ -183,14 +197,14 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md font-inter">
+    <nav className={`${transparent ? 'bg-transparent' : backgroundColor} shadow-md font-inter`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo - Updated to use SVG image */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <Image 
-                src="/logo.svg" 
+                src={isOnTilbudPage ? "/images/stromnetwhite.svg" : "/logo.svg"}
                 alt="Strømnet Logo" 
                 width={140} 
                 height={40} 
@@ -201,17 +215,17 @@ export default function Navbar() {
           
           {/* Desktop Navigation - hidden on mobile */}
           <div className="hidden md:flex items-center space-x-2">
-            <Link href="/stromavtaler" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Strømavtale</Link>
-            <Link href="/spotpris" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Spotpris</Link>
-            <Link href="/fastpris-strom" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Fastpris</Link>
-            <Link href="/dagens-strompris" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Dagens strømpris</Link>
-            <Link href="/stromtest" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Test din strømavtale ⚡</Link>
-            <Link href="/bedrift" className="px-2 py-2 text-gray-700 font-medium hover:text-blue-600">Bedrift</Link>
+            <Link href="/stromavtaler" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Strømavtale</Link>
+            <Link href="/spotpris" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Spotpris</Link>
+            <Link href="/fastpris-strom" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Fastpris</Link>
+            <Link href="/dagens-strompris" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Dagens strømpris</Link>
+            <Link href="/stromtest" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Test din strømavtale ⚡</Link>
+            <Link href="/bedrift" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Bedrift</Link>
             
             {/* Search icon button */}
             <button 
               onClick={openSearchModal}
-              className="px-2 py-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+              className={`px-2 py-2 ${textColor} ${hoverColor} focus:outline-none`}
               aria-label="Search"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -220,10 +234,12 @@ export default function Navbar() {
             </button>
           </div>
           
-          {/* Desktop CTA button - hidden on mobile */}
-          <div className="hidden md:flex items-center">
-            <Link href="/tilbud" className="px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700">Få tilbud</Link>
-          </div>
+          {/* Desktop CTA button - hidden on mobile and on tilbud page */}
+          {!isOnTilbudPage && (
+            <div className="hidden md:flex items-center">
+              <Link href="/tilbud" className="px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700">Få tilbud</Link>
+            </div>
+          )}
           
           {/* Mobile navigation controls */}
           <div className="flex items-center md:hidden">
@@ -233,7 +249,7 @@ export default function Navbar() {
                 setMobileSearchOpen(!mobileSearchOpen);
                 setMobileMenuOpen(false);
               }}
-              className="p-2 text-gray-600 hover:text-blue-600 mr-2"
+              className={`p-2 ${textColor} ${hoverColor} mr-2`}
               aria-label="Search"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -247,7 +263,7 @@ export default function Navbar() {
                 setMobileMenuOpen(!mobileMenuOpen);
                 setMobileSearchOpen(false);
               }}
-              className="p-2 text-gray-600 hover:text-blue-600"
+              className={`p-2 ${textColor} ${hoverColor}`}
               aria-label="Menu"
             >
               {mobileMenuOpen ? (
@@ -356,15 +372,17 @@ export default function Navbar() {
             >
               Bedrift
             </Link>
-            <div className="pt-2">
-              <Link 
-                href="/tilbud" 
-                className="block w-full px-4 py-2 bg-blue-600 text-center text-white rounded-md font-medium hover:bg-blue-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Få tilbud
-              </Link>
-            </div>
+            {!isOnTilbudPage && (
+              <div className="pt-2">
+                <Link 
+                  href="/tilbud" 
+                  className="block w-full px-4 py-2 bg-blue-600 text-center text-white rounded-md font-medium hover:bg-blue-700"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Få tilbud
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
