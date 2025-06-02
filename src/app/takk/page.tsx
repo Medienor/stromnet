@@ -57,6 +57,82 @@ export default function TakkPage() {
           </p>
         </div>
 
+        {/* Partner Services Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-8 rounded-xl mb-10">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Spar <span className="bg-yellow-300 px-2 py-1 rounded">tusenvis</span> av kroner årlig med våre partnertjenester!
+            </h2>
+            <p className="text-lg text-gray-700 max-w-4xl mx-auto">
+              Som kunde hos Strømnet.no får du eksklusiv tilgang til vårt sparenettverk. Vi har forhandlet frem 
+              spesialavtaler på tv-pakker, mobilabonnement og forsikring som kan redusere de månedlige utgiftene dine betydelig.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Mobile Subscription Card - Full Width */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="flex items-center mb-3">
+                <span className="text-green-500 mr-2">✅</span>
+                <span className="text-sm font-medium text-green-700">Spar mellom 100 til 300 kr/mnd</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Mobilabonnement</h3>
+              <p className="text-gray-600 mb-4">
+                Få mer innhold til lavere pris. Få tilbud på mobilabonnement. Få tilbud fra opptil 3 
+                mobiloperatører helt gratis.
+              </p>
+              <Link 
+                href="https://www.mobilabonnementpris.no/kampanje?utm=str%C3%B8mnet.no" 
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+              >
+                Sammenlign mobilabonnement
+              </Link>
+            </div>
+
+            {/* TV Packages and Insurance - Two Columns */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* TV Packages Card */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center mb-3">
+                  <span className="text-green-500 mr-2">✅</span>
+                  <span className="text-sm font-medium text-green-700">Få mer innhold til lavere pris</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">TV-pakker</h3>
+                <p className="text-gray-600 mb-4">
+                  Få tilbud fra 3 leverandører på TV-pakker med dine favoritt programmer, sportskanaler 
+                  og streaming-tjenester.
+                </p>
+                <Link 
+                  href="http://tvtilbud.no/kampanje?utm=str%C3%B8mnet.no" 
+                  className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition duration-200"
+                >
+                  Sammenlign tv-pakker
+                </Link>
+              </div>
+
+              {/* Insurance Card */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center mb-3">
+                  <span className="text-green-500 mr-2">✅</span>
+                  <span className="text-sm font-medium text-green-700">Du kan spare ca 4.500 kr /årlig</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">Forsikring</h3>
+                <p className="text-gray-600 mb-4 text-sm">
+                  "Med et årlig forbruk på 20 000 kWh kan du spare over 4 000 kroner på å bytte fra en ordinær 
+                  variabel avtale til en spotprisavtale. Hvis du bytter fra den dyreste variable avtalen til den beste 
+                  spotprisavtalen, blir besparelsen enda større." - Forbrukerrådet
+                </p>
+                <Link 
+                  href="https://www.forsikringtest.no/tilbud?utm=str%C3%B8mnet.no" 
+                  className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition duration-200"
+                >
+                  Sammenlign forsikring
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Introduction */}
         <div className="prose prose-lg max-w-none mb-10 text-center">
           <h2 className="text-2xl font-bold text-blue-800 mb-6">

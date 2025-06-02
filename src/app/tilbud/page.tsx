@@ -61,33 +61,6 @@ export default function TilbudLandingPage() {
                 >
                   Få gratis tilbud nå
                 </button>
-
-                {/* Trust indicators for desktop */}
-                <div className="hidden md:block mt-12">
-                  <p className="text-sm text-blue-200 mb-4">
-                    Tusenvis av nordmenn har allerede funnet billigere strøm gjennom oss
-                  </p>
-                  <div className="flex items-center space-x-8 text-blue-200">
-                    <div className="text-xs flex items-center">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      GDPR-sikret
-                    </div>
-                    <div className="text-xs flex items-center">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Ingen spam
-                    </div>
-                    <div className="text-xs flex items-center">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Norsk kundeservice
-                    </div>
-                  </div>
-                </div>
               </div>
               
               {/* Right side - Form */}
@@ -120,7 +93,7 @@ export default function TilbudLandingPage() {
             {/* USP 1 */}
             <div className="bg-[#1c4ada] rounded-lg p-6 flex flex-col items-start justify-start gap-6">
               <div className="border-[6px] border-[#ffe797] rounded-full w-[64px] h-[64px] flex items-center justify-center p-[17px]">
-                <span className="text-white text-xl font-bold">1</span>
+                <span className="text-white text-2xl font-bold">1</span>
               </div>
               <div>
                 <h4 className="text-white text-lg font-semibold mb-2">Du sparer tid</h4>
@@ -133,7 +106,7 @@ export default function TilbudLandingPage() {
             {/* USP 2 */}
             <div className="bg-[#1c4ada] rounded-lg p-6 flex flex-col items-start justify-start gap-6">
               <div className="border-[6px] border-[#ffe797] rounded-full w-[64px] h-[64px] flex items-center justify-center p-[17px]">
-                <span className="text-white text-xl font-bold">2</span>
+                <span className="text-white text-2xl font-bold">2</span>
               </div>
               <div>
                 <h4 className="text-white text-lg font-semibold mb-2">Du sparer penger</h4>
@@ -146,7 +119,7 @@ export default function TilbudLandingPage() {
             {/* USP 3 */}
             <div className="bg-[#1c4ada] rounded-lg p-6 flex flex-col items-start justify-start gap-6">
               <div className="border-[6px] border-[#ffe797] rounded-full w-[64px] h-[64px] flex items-center justify-center p-[17px]">
-                <span className="text-white text-xl font-bold">3</span>
+                <span className="text-white text-2xl font-bold">3</span>
               </div>
               <div>
                 <h4 className="text-white text-lg font-semibold mb-2">Trygg og sikker</h4>
@@ -183,16 +156,6 @@ export default function TilbudLandingPage() {
                     <cite className="font-semibold text-gray-900">Forbrukerrådet</cite>
                     <p className="text-sm text-gray-500">Norges ledende forbrukerorganisasjon</p>
                   </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <a 
-                    href="https://www.forbrukerradet.no/siste-nytt/sjekk-norges-dyreste-stromavtaler-bytt-hvis-du-har-en-av-disse/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Les hele artikkelen på forbrukerradet.no →
-                  </a>
                 </div>
               </div>
             </div>
@@ -282,7 +245,7 @@ export default function TilbudLandingPage() {
                   <p className="text-gray-600 mb-4">
                     De største strømleverandørene tilbyr ofte flere tilleggstjenester. Du får gjerne alt på ett sted: strøm, nettleie på samme faktura, kundefordeler, og tilgang til smart-tjenester.
                   </p>
-                  <p className="text-sm text-blue-600 font-medium">
+                  <p className="text-sm text-gray-500 font-medium">
                     Velg en stor aktør hvis du ønsker en komplett løsning med flere tjenester samlet.
                   </p>
                 </div>
@@ -300,7 +263,7 @@ export default function TilbudLandingPage() {
                   <p className="text-gray-600 mb-4">
                     Gode strømapper gir deg full oversikt over forbruket time for time. Du kan enkelt følge med på kostnader, sammenligne perioder, og finne ut når du bruker mest strøm.
                   </p>
-                  <p className="text-sm text-blue-600 font-medium">
+                  <p className="text-sm text-gray-500 font-medium">
                     Med økt bevissthet rundt eget forbruk kan du spare betydelige summer. Sjekk om leverandøren tilbyr en moderne app uten ekstra kostnad.
                   </p>
                 </div>
@@ -318,7 +281,7 @@ export default function TilbudLandingPage() {
                   <p className="text-gray-600 mb-4">
                     Mange leverandører tilbyr nå smarte ladetjenester for elbil, gunstige forsikringsordninger, og løsninger for deg som produserer egen strøm (solceller).
                   </p>
-                  <p className="text-sm text-blue-600 font-medium">
+                  <p className="text-sm text-gray-500 font-medium">
                     Vurder hvilke tilleggstjenester som er viktige for deg, og sammenlign tilbudene. Noen inkluderer disse tjenestene gratis, mens andre tar ekstra betalt.
                   </p>
                 </div>
@@ -336,7 +299,7 @@ export default function TilbudLandingPage() {
                   <p className="text-gray-600 mb-4">
                     Les alltid det med liten skrift! Se etter skjulte gebyrer, påslag og binding. De beste leverandørene tilbyr fornøydhetsgaranti og fleksible betalingsløsninger som delbetaling eller utsettelse ved behov.
                   </p>
-                  <p className="text-sm text-blue-600 font-medium">
+                  <p className="text-sm text-gray-500 font-medium">
                     Sjekk også kvaliteten på kundeservice – dette er spesielt viktig når strømprisene er høye eller det oppstår problemer.
                   </p>
                 </div>
@@ -347,7 +310,7 @@ export default function TilbudLandingPage() {
           {/* CTA Button */}
           <div className="text-center">
             <button 
-              className="bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-4 px-8 rounded-full text-lg shadow-lg transform transition hover:scale-105"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transform transition hover:scale-105"
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
@@ -364,15 +327,15 @@ export default function TilbudLandingPage() {
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold text-white mb-2">10,000+</div>
-              <div className="text-blue-200">Fornøyde kunder</div>
+              <div className="text-blue-200">Fornøyde brukere</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-white mb-2">4 500 kr</div>
-              <div className="text-blue-100 text-sm">Gjennomsnittlig årlig besparelse</div>
+              <div className="text-4xl font-bold text-white mb-2">4 000 kr</div>
+              <div className="text-blue-200">Gjennomsnittlig årlig besparelse</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-white mb-2">2 min</div>
-              <div className="text-blue-200">Tid for å få tilbud</div>
+              <div className="text-4xl font-bold text-white mb-2">1 min</div>
+              <div className="text-blue-200">For å fylle ut skjema</div>
             </div>
           </div>
         </div>
@@ -385,18 +348,6 @@ export default function TilbudLandingPage() {
             Tusenvis av nordmenn har allerede funnet billigere strøm gjennom oss
           </p>
           <div className="flex justify-center items-center space-x-6 text-gray-500">
-            <div className="text-xs flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              GDPR-sikret
-            </div>
-            <div className="text-xs flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Ingen spam
-            </div>
             <div className="text-xs flex items-center">
               <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

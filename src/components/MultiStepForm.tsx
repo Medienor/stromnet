@@ -119,75 +119,81 @@ export default function MultiStepForm() {
     console.log('Is step valid:', isStepValid);
   }, [step, formData.customerType, isStepValid]);
 
-  const validateStep = (currentStep: number) => {
-    const newErrors: Record<string, string> = {};
+  const validateStep = (stepNumber: number) => {
+    const newErrors: { [key: string]: string } = {};
     
-    if (formData.customerType === 'business') {
-      // Business flow validation
-      if (currentStep === 1) {
-        if (!formData.customerType) {
-          newErrors.customerType = 'Vennligst velg kundetypen';
-        }
-        if (!formData.address.trim()) {
-          newErrors.address = 'Vennligst oppgi adresse';
-        }
-        if (!formData.postalCode.trim()) {
-          newErrors.postalCode = 'Vennligst oppgi postnummer';
-        } else if (formData.postalCode.length !== 4 || !/^\d{4}$/.test(formData.postalCode)) {
-          newErrors.postalCode = 'Postnummer må bestå av nøyaktig 4 siffer';
-        }
-      } else if (currentStep === 2) {
-        // Contact info validation
-        if (!formData.businessContactName.trim()) {
-          newErrors.businessContactName = 'Vennligst oppgi kontaktperson';
-        }
-        if (!formData.businessEmail.trim()) {
-          newErrors.businessEmail = 'Vennligst oppgi e-post';
-        } else if (!/\S+@\S+\.\S+/.test(formData.businessEmail)) {
-          newErrors.businessEmail = 'Vennligst oppgi en gyldig e-post';
-        }
-        if (!formData.businessPhone.trim()) {
-          newErrors.businessPhone = 'Vennligst oppgi telefonnummer';
-        } else if (!/^\d{8}$/.test(formData.businessPhone)) {
-          newErrors.businessPhone = 'Telefonnummer må bestå av 8 siffer';
-        }
-        if (!formData.businessAcceptTerms) {
-          newErrors.businessAcceptTerms = 'Du må godta vilkårene for å fortsette';
-        }
+    if (stepNumber === 1) {
+      if (!formData.customerType) {
+        newErrors.customerType = 'Vennligst velg kundetypen';
       }
-    } else {
-      // Regular private customer flow validation
-      if (currentStep === 1) {
-        if (!formData.customerType) {
-          newErrors.customerType = 'Vennligst velg kundetypen';
-        }
-        if (!formData.address.trim()) {
-          newErrors.address = 'Vennligst oppgi adresse';
-        }
-        if (!formData.postalCode.trim()) {
-          newErrors.postalCode = 'Vennligst oppgi postnummer';
-        } else if (formData.postalCode.length !== 4 || !/^\d{4}$/.test(formData.postalCode)) {
-          newErrors.postalCode = 'Postnummer må bestå av nøyaktig 4 siffer';
-        }
-      } else if (currentStep === 2) {
-        if (!formData.name.trim()) {
-          newErrors.name = 'Vennligst oppgi navn';
-        }
-        if (!formData.email.trim()) {
-          newErrors.email = 'Vennligst oppgi e-post';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-          newErrors.email = 'Vennligst oppgi en gyldig e-post';
-        }
-        if (!formData.phone.trim()) {
-          newErrors.phone = 'Vennligst oppgi telefonnummer';
-        } else if (!/^\d{8}$/.test(formData.phone)) {
-          newErrors.phone = 'Telefonnummer må bestå av 8 siffer';
-        }
-        if (!formData.acceptTerms) {
-          newErrors.acceptTerms = 'Du må godta vilkårene for å fortsette';
-        }
+      if (!formData.address?.trim()) {
+        newErrors.address = 'Adresse er påkrevd';
+      }
+      if (!formData.postalCode?.trim()) {
+        newErrors.postalCode = 'Postnummer er påkrevd';
+      } else if (!/^\d{4}$/.test(formData.postalCode)) {
+        newErrors.postalCode = 'Postnummer må være 4 siffer';
       }
     }
+    
+    if (stepNumber === 2 && formData.customerType === 'private') {
+      if (!formData.name?.trim()) {
+        newErrors.name = 'Navn er påkrevd';
+      }
+      if (!formData.email?.trim()) {
+        newErrors.email = 'E-post er påkrevd';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = 'Ugyldig e-postadresse';
+      }
+      if (!formData.phone?.trim()) {
+        newErrors.phone = 'Telefonnummer er påkrevd';
+      } else if (!/^\d{8}$/.test(formData.phone)) {
+        newErrors.phone = 'Telefonnummer må være 8 siffer';
+      } else if (!/^[49]/.test(formData.phone)) {
+        newErrors.phone = 'Telefonnummer må starte med 4 eller 9';
+      }
+      if (!formData.acceptTerms) {
+        newErrors.acceptTerms = 'Du må akseptere vilkårene';
+      }
+    }
+    
+    if (stepNumber === 2 && formData.customerType === 'business') {
+      if (!formData.companyName?.trim()) {
+        newErrors.companyName = 'Bedriftsnavn er påkrevd';
+      }
+      if (!formData.businessContactName?.trim()) {
+        newErrors.businessContactName = 'Kontaktperson er påkrevd';
+      }
+      if (!formData.businessEmail?.trim()) {
+        newErrors.businessEmail = 'E-post er påkrevd';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.businessEmail)) {
+        newErrors.businessEmail = 'Ugyldig e-postadresse';
+      }
+      if (!formData.businessPhone?.trim()) {
+        newErrors.businessPhone = 'Telefonnummer er påkrevd';
+      } else if (!/^\d{8}$/.test(formData.businessPhone)) {
+        newErrors.businessPhone = 'Telefonnummer må være 8 siffer';
+      } else if (!/^[49]/.test(formData.businessPhone)) {
+        newErrors.businessPhone = 'Telefonnummer må starte med 4 eller 9';
+      }
+      if (!formData.businessContractType) {
+        newErrors.businessContractType = 'Vennligst velg avtaletypen';
+      }
+      if (!formData.propertySize?.trim()) {
+        newErrors.propertySize = 'Eiendomsstørrelse er påkrevd';
+      }
+      if (!formData.businessKnowsConsumption) {
+        newErrors.businessKnowsConsumption = 'Vennligst oppgi om du vet årsforbruket';
+      }
+      if (formData.businessKnowsConsumption === 'yes' && !formData.businessAnnualConsumption?.trim()) {
+        newErrors.businessAnnualConsumption = 'Årsforbruk er påkrevd';
+      }
+      if (!formData.businessAcceptTerms) {
+        newErrors.businessAcceptTerms = 'Du må akseptere vilkårene';
+      }
+    }
+    
+    // ... existing housing validation code ...
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -196,7 +202,6 @@ export default function MultiStepForm() {
   const handleNext = () => {
     console.log('handleNext called, current step:', step);
     
-    // Remove the redirect logic - let the form continue normally
     if (validateStep(step)) {
       console.log('Step validated, moving to next step');
       if (step < totalSteps) {
@@ -204,6 +209,8 @@ export default function MultiStepForm() {
       }
     } else {
       console.log('Step validation failed');
+      // Force validation to show all errors
+      validateStep(step);
     }
   };
 
@@ -346,7 +353,7 @@ export default function MultiStepForm() {
   };
 
   const handleSubmit = async () => {
-    const finalStep = formData.customerType === 'housing' ? 4 : 3;
+    const finalStep = formData.customerType === 'housing' ? 4 : 2;
     if (validateStep(finalStep)) {
       setLoading(true);
       
@@ -404,6 +411,10 @@ export default function MultiStepForm() {
       } finally {
         setLoading(false);
       }
+    } else {
+      // Force validation to show all errors
+      console.log('Validation failed, forcing validation display');
+      validateStep(finalStep);
     }
   };
 
@@ -466,6 +477,10 @@ export default function MultiStepForm() {
       } finally {
         setLoading(false);
       }
+    } else {
+      // Force validation to show all errors
+      console.log('Business validation failed, forcing validation display');
+      validateStep(2);
     }
   };
 
@@ -493,7 +508,9 @@ export default function MultiStepForm() {
                 className={`flex-1 py-3 px-4 rounded-lg border-2 transition-colors ${
                   formData.customerType === 'private'
                     ? 'bg-blue-600 text-white border-blue-700'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : `bg-white text-gray-700 border-gray-300 hover:bg-gray-50 ${
+                        errors.customerType ? 'border-red-300 ring-1 ring-red-300' : ''
+                      }`
                 }`}
               >
                 Privat
@@ -504,13 +521,22 @@ export default function MultiStepForm() {
                 className={`flex-1 py-3 px-4 rounded-lg border-2 transition-colors ${
                   formData.customerType === 'business'
                     ? 'bg-blue-600 text-white border-blue-700'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : `bg-white text-gray-700 border-gray-300 hover:bg-gray-50 ${
+                        errors.customerType ? 'border-red-300 ring-1 ring-red-300' : ''
+                      }`
                 }`}
               >
                 Bedrift
               </button>
             </div>
-            {errors.customerType && <p className="text-red-500 text-sm mt-1">{errors.customerType}</p>}
+            {errors.customerType && (
+              <div className="flex items-center text-red-500 text-sm mt-1">
+                <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.customerType}
+              </div>
+            )}
             
             <div>
               <label className="block text-gray-700 font-medium mb-2">
@@ -522,10 +548,19 @@ export default function MultiStepForm() {
                 value={formData.address || ''}
                 onChange={handleChange}
                 placeholder="Eksempel: Storgata 1"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.address ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+              {errors.address && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.address}
+                </div>
+              )}
             </div>
             
             <div>
@@ -539,16 +574,25 @@ export default function MultiStepForm() {
                 onChange={handleChange}
                 placeholder="0123"
                 maxLength={4}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.postalCode ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.postalCode && <p className="text-red-500 text-sm mt-1">{errors.postalCode}</p>}
+              {errors.postalCode && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.postalCode}
+                </div>
+              )}
             </div>
             
             <div className="flex justify-end">
               <button
                 onClick={handleNext}
-                disabled={!isStepValid || loading}
+                disabled={loading}
                 className={`w-full font-medium py-[15px] px-4 rounded-[25px] transition-all duration-300 ease-in-out flex items-center justify-center gap-2 ${
                   isStepValid && !loading
                     ? 'bg-[#4CAF50] hover:bg-[#45a049] text-white' 
@@ -574,8 +618,20 @@ export default function MultiStepForm() {
               </button>
             </div>
             
+            {/* Show validation message when button is clicked but form is invalid */}
+            {!isStepValid && Object.keys(errors).length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-4">
+                <div className="flex items-center text-red-700">
+                  <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm font-medium">Vennligst fyll ut alle påkrevde felt for å fortsette</span>
+                </div>
+              </div>
+            )}
+            
             <p className="text-xs text-gray-500 text-center mt-4">
-              Personvernet ditt ivaretas: Vi behandler alle data etter personvernforordningen (GDPR).
+            Ved å fylle ut skjemaet får du de beste strømtilbudene direkte fra strømleverandørene. Se standard tilbud i prisoversikten.
             </p>
           </div>
         )}
@@ -594,10 +650,19 @@ export default function MultiStepForm() {
                 value={formData.name || ''}
                 onChange={handleChange}
                 placeholder="Ditt navn"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.name ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              {errors.name && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.name}
+                </div>
+              )}
             </div>
             
             <div>
@@ -610,10 +675,19 @@ export default function MultiStepForm() {
                 value={formData.email || ''}
                 onChange={handleChange}
                 placeholder="ola@eksempel.no"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.email ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.email && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.email}
+                </div>
+              )}
             </div>
             
             <div>
@@ -627,10 +701,19 @@ export default function MultiStepForm() {
                 onChange={handleChange}
                 placeholder="12345678"
                 maxLength={8}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.phone ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              {errors.phone && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.phone}
+                </div>
+              )}
             </div>
             
             <div className="mt-4">
@@ -640,14 +723,23 @@ export default function MultiStepForm() {
                   name="acceptTerms"
                   checked={formData.acceptTerms || false}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className={`mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ${
+                    errors.acceptTerms ? 'border-red-300 ring-1 ring-red-300' : ''
+                  }`}
                   required
                 />
                 <span className="ml-2 text-sm text-gray-600">
                   Jeg aksepterer brukervilkårene, og bekrefter at personopplysningene er korrekte.
                 </span>
               </label>
-              {errors.acceptTerms && <p className="text-red-500 text-sm mt-1">{errors.acceptTerms}</p>}
+              {errors.acceptTerms && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.acceptTerms}
+                </div>
+              )}
             </div>
 
             {/* Heat pump offer box */}
@@ -719,7 +811,24 @@ export default function MultiStepForm() {
             
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {errors.submit}
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.submit}
+                </div>
+              </div>
+            )}
+            
+            {/* Show validation message when submit button is clicked but form is invalid */}
+            {!isStepValid && Object.keys(errors).length > 0 && !errors.submit && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-center text-red-700">
+                  <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm font-medium">Vennligst fyll ut alle påkrevde felt for å sende inn</span>
+                </div>
               </div>
             )}
             
@@ -733,9 +842,9 @@ export default function MultiStepForm() {
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={!isStepValid || loading}
+                disabled={loading}
                 className={`w-1/2 font-medium py-[15px] px-4 rounded-[25px] transition-all duration-300 ease-in-out flex items-center justify-center gap-2 ${
-                  isStepValid && !loading
+                  !loading
                     ? 'bg-[#4CAF50] hover:bg-[#45a049] text-white' 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -776,10 +885,19 @@ export default function MultiStepForm() {
                 value={formData.businessContactName || ''}
                 onChange={handleChange}
                 placeholder="Kari Hansen"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.businessContactName ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.businessContactName && <p className="text-red-500 text-sm mt-1">{errors.businessContactName}</p>}
+              {errors.businessContactName && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.businessContactName}
+                </div>
+              )}
             </div>
             
             <div>
@@ -792,10 +910,19 @@ export default function MultiStepForm() {
                 value={formData.businessEmail || ''}
                 onChange={handleChange}
                 placeholder="kari@bedrift.no"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.businessEmail ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.businessEmail && <p className="text-red-500 text-sm mt-1">{errors.businessEmail}</p>}
+              {errors.businessEmail && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.businessEmail}
+                </div>
+              )}
             </div>
             
             <div>
@@ -809,10 +936,19 @@ export default function MultiStepForm() {
                 onChange={handleChange}
                 placeholder="87654321"
                 maxLength={8}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100"
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 placeholder:opacity-100 ${
+                  errors.businessPhone ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
+                }`}
                 required
               />
-              {errors.businessPhone && <p className="text-red-500 text-sm mt-1">{errors.businessPhone}</p>}
+              {errors.businessPhone && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.businessPhone}
+                </div>
+              )}
             </div>
             
             <div className="mt-4">
@@ -822,14 +958,23 @@ export default function MultiStepForm() {
                   name="businessAcceptTerms"
                   checked={formData.businessAcceptTerms || false}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className={`mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ${
+                    errors.businessAcceptTerms ? 'border-red-300 ring-1 ring-red-300' : ''
+                  }`}
                   required
                 />
                 <span className="ml-2 text-sm text-gray-600">
                   Jeg aksepterer brukervilkårene, og bekrefter at personopplysningene er korrekte.
                 </span>
               </label>
-              {errors.businessAcceptTerms && <p className="text-red-500 text-sm mt-1">{errors.businessAcceptTerms}</p>}
+              {errors.businessAcceptTerms && (
+                <div className="flex items-center text-red-500 text-sm mt-1">
+                  <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.businessAcceptTerms}
+                </div>
+              )}
             </div>
 
             {/* Heat pump offer box for business */}
@@ -901,7 +1046,24 @@ export default function MultiStepForm() {
             
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {errors.submit}
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.submit}
+                </div>
+              </div>
+            )}
+            
+            {/* Show validation message when submit button is clicked but form is invalid */}
+            {!isStepValid && Object.keys(errors).length > 0 && !errors.submit && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-center text-red-700">
+                  <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm font-medium">Vennligst fyll ut alle påkrevde felt for å sende inn</span>
+                </div>
               </div>
             )}
             
@@ -915,9 +1077,9 @@ export default function MultiStepForm() {
               </button>
               <button
                 onClick={handleBusinessSubmit}
-                disabled={!isStepValid || loading}
+                disabled={loading}
                 className={`w-1/2 font-medium py-[15px] px-4 rounded-[25px] transition-all duration-300 ease-in-out flex items-center justify-center gap-2 ${
-                  isStepValid && !loading
+                  !loading
                     ? 'bg-[#4CAF50] hover:bg-[#45a049] text-white' 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}

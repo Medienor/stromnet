@@ -13,7 +13,7 @@ export default function OmOss() {
             
             <div className="prose prose-lg max-w-none">
               <p>
-                StromNet er en tjeneste levert av Netsure AS, som hjelper norske forbrukere og 
+                Strømnet.no er en tjeneste levert av Netsure AS, som hjelper norske forbrukere og 
                 bedrifter med å finne de beste strømavtalene i markedet.
               </p>
               
@@ -32,14 +32,14 @@ export default function OmOss() {
               
               <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Selskapet bak</h2>
               <p>
-                StromNet drives av Netsure AS, et norsk selskap som spesialiserer seg på 
+                Strømnet.no drives av Netsure AS, et norsk selskap som spesialiserer seg på 
                 digitale tjenester innen energi- og forbrukersektoren.
               </p>
               
               <ul className="mt-4">
                 <li><strong>Organisasjonsnummer:</strong> 834 762 102</li>
-                <li><strong>E-post:</strong> support@netsure.ai</li>
-                <li><strong>Adresse:</strong> Strømgata 123, 0150 Oslo</li>
+                <li><strong>E-post:</strong> post@netsure.ai</li>
+                <li><strong>Adresse:</strong> Føllingstads veg 28, 2819 Gjøvik</li>
               </ul>
             </div>
           </div>
