@@ -397,6 +397,48 @@ export default function MultiStepForm() {
         // Send Telegram notification
         await sendTelegramNotification(formData, false);
         
+        // Send to heat pump webhook if heat pump option is selected
+        if (formData.wantHeatPumpOffer) {
+          try {
+            const heatPumpWebhookResponse = await fetch('https://hook.eu2.make.com/irnhllg6s8va512l8yn76wxswazvpnoa', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                // Standard fields
+                street1: formData.address,
+                towncity: '', // We don't collect city separately
+                county: '', // We don't collect county
+                email: formData.email,
+                fullname: formData.name,
+                phone1: formData.phone,
+                optinurl: window.location.href,
+                ipaddress: '', // Would need to be collected separately
+                source: 'strom-form-heatpump',
+                postcode: formData.postalCode,
+                company: formData.customerType === 'housing' ? formData.housingAssociationName : '',
+                PID: 25, // Manual field as requested
+                
+                // Custom fields for this form
+                customerType: formData.customerType,
+                housingType: formData.housingType,
+                houseNumber: formData.houseNumber,
+                contractType: formData.contractType,
+                knowsConsumption: formData.knowsConsumption,
+                wantHeatPumpOffer: formData.wantHeatPumpOffer,
+                comment: formData.knowsConsumption === 'yes' ? `Årsforbruk: ${formData.annualConsumption} kWh` : 'Vet ikke årsforbruk',
+                
+                timestamp: new Date().toISOString()
+              })
+            });
+            
+            if (!heatPumpWebhookResponse.ok) {
+              console.error('Failed to send heat pump webhook:', await heatPumpWebhookResponse.text());
+            }
+          } catch (error) {
+            console.error('Error sending heat pump webhook:', error);
+          }
+        }
+        
         // Simulate API call with timeout
         await new Promise(resolve => setTimeout(resolve, 1500));
         
@@ -462,6 +504,49 @@ export default function MultiStepForm() {
         
         // Send Telegram notification for business customer
         await sendTelegramNotification(formData, true);
+        
+        // Send to heat pump webhook if heat pump option is selected
+        if (formData.businessWantHeatPumpOffer) {
+          try {
+            const heatPumpWebhookResponse = await fetch('https://hook.eu2.make.com/irnhllg6s8va512l8yn76wxswazvpnoa', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                // Standard fields
+                street1: formData.address,
+                towncity: '',
+                county: '',
+                email: formData.businessEmail,
+                fullname: formData.businessContactName,
+                phone1: formData.businessPhone,
+                optinurl: window.location.href,
+                ipaddress: '', // Would need to be collected separately
+                source: 'strom-form-business-heatpump',
+                postcode: formData.postalCode,
+                company: formData.companyName,
+                PID: 25, // Manual field as requested
+                
+                // Custom fields for business form
+                customerType: formData.customerType,
+                businessContractType: formData.businessContractType,
+                propertySize: formData.propertySize,
+                businessKnowsConsumption: formData.businessKnowsConsumption,
+                businessWantHeatPumpOffer: formData.businessWantHeatPumpOffer,
+                comment: formData.businessKnowsConsumption === 'yes' 
+                  ? `Bedrift - Eiendom: ${formData.propertySize}m², Årsforbruk: ${formData.businessAnnualConsumption} kWh` 
+                  : `Bedrift - Eiendom: ${formData.propertySize}m², Vet ikke årsforbruk`,
+                
+                timestamp: new Date().toISOString()
+              })
+            });
+            
+            if (!heatPumpWebhookResponse.ok) {
+              console.error('Failed to send business heat pump webhook:', await heatPumpWebhookResponse.text());
+            }
+          } catch (error) {
+            console.error('Error sending business heat pump webhook:', error);
+          }
+        }
         
         // Simulate API call with timeout
         await new Promise(resolve => setTimeout(resolve, 1500));
@@ -743,10 +828,26 @@ export default function MultiStepForm() {
             </div>
 
             {/* Heat pump offer box */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0">
-                  <svg className="w-8 h-8 text-green-600" viewBox="0 0 512 512" fill="currentColor">
+            <div className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-6 mt-6 shadow-lg hover:shadow-xl transition-all duration-300">
+              {/* Populært badge - absolute positioned */}
+              <div className="absolute top-3 right-3 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+                Populært
+              </div>
+              
+              {/* Decorative background pattern */}
+              <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
+                <svg viewBox="0 0 100 100" className="w-full h-full text-emerald-300">
+                  <circle cx="50" cy="20" r="8" fill="currentColor"/>
+                  <circle cx="20" cy="50" r="6" fill="currentColor"/>
+                  <circle cx="80" cy="60" r="4" fill="currentColor"/>
+                  <circle cx="60" cy="80" r="5" fill="currentColor"/>
+                </svg>
+              </div>
+              
+              <div className="relative flex items-start space-x-4">
+                {/* Icon with enhanced styling - original heat pump icon */}
+                <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-md">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 512 512" fill="currentColor">
                     <g>
                       <polygon points="403.692,219.077 108.308,219.077 90.585,297.846 421.415,297.846"></polygon>
                     </g>
@@ -784,25 +885,47 @@ export default function MultiStepForm() {
                     </g>
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-green-800 mb-2">
-                    Spar mer med varmepumpe
-                  </h4>
-                  <p className="text-xs text-green-700 mb-3">
-                    En varmepumpe kan redusere oppvarmingskostnadene betydelig. Vi kan også hjelpe deg med tilbud på dette.
-                  </p>
-                  <div className="mt-3">
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="wantHeatPumpOffer"
-                        checked={formData.wantHeatPumpOffer || false}
-                        onChange={handleChange}
-                        className="h-6 w-6 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer"
-                      />
-                      <span className="ml-4 text-sm text-green-700">
-                        <strong>Ja, send meg også tilbud på varmepumpe</strong>
-                      </span>
+                
+                <div className="flex-1 space-y-4">
+                  {/* Header with enhanced typography */}
+                  <div>
+                    <h4 className="text-lg font-bold text-emerald-800 mb-2">
+                      💰 Spar mer med varmepumpe
+                    </h4>
+                    <p className="text-sm text-emerald-700 leading-relaxed">
+                      En varmepumpe kan <strong>redusere oppvarmingskostnadene med opp til 70%</strong>. 
+                      Vi hjelper deg med å finne de beste tilbudene fra kvalifiserte installatører.
+                    </p>
+                  </div>
+                  
+                  {/* Enhanced checkbox with better styling */}
+                  <div className="bg-white/70 backdrop-blur-sm border border-emerald-200 rounded-lg p-4 hover:bg-white/90 transition-all duration-200">
+                    <label className="flex items-center cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          name="wantHeatPumpOffer"
+                          checked={formData.wantHeatPumpOffer || false}
+                          onChange={handleChange}
+                          className="sr-only"
+                        />
+                        <div className={`w-6 h-6 rounded-md border-2 transition-all duration-200 ${
+                          formData.wantHeatPumpOffer 
+                            ? 'bg-emerald-500 border-emerald-500' 
+                            : 'bg-white border-gray-300 group-hover:border-emerald-400'
+                        }`}>
+                          {formData.wantHeatPumpOffer && (
+                            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <span className="text-emerald-800 font-semibold text-base">
+                          Jeg ønsker tilbud på varmepumpe
+                        </span>
+                      </div>
                     </label>
                   </div>
                 </div>
@@ -978,10 +1101,26 @@ export default function MultiStepForm() {
             </div>
 
             {/* Heat pump offer box for business */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0">
-                  <svg className="w-8 h-8 text-green-600" viewBox="0 0 512 512" fill="currentColor">
+            <div className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-6 mt-6 shadow-lg hover:shadow-xl transition-all duration-300">
+              {/* Bedrift badge - absolute positioned */}
+              <div className="absolute top-3 right-3 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+                Bedrift
+              </div>
+              
+              {/* Decorative background pattern */}
+              <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
+                <svg viewBox="0 0 100 100" className="w-full h-full text-emerald-300">
+                  <circle cx="50" cy="20" r="8" fill="currentColor"/>
+                  <circle cx="20" cy="50" r="6" fill="currentColor"/>
+                  <circle cx="80" cy="60" r="4" fill="currentColor"/>
+                  <circle cx="60" cy="80" r="5" fill="currentColor"/>
+                </svg>
+              </div>
+              
+              <div className="relative flex items-start space-x-4">
+                {/* Icon with enhanced styling - original heat pump icon */}
+                <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-md">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 512 512" fill="currentColor">
                     <g>
                       <polygon points="403.692,219.077 108.308,219.077 90.585,297.846 421.415,297.846"></polygon>
                     </g>
@@ -1019,25 +1158,47 @@ export default function MultiStepForm() {
                     </g>
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-green-800 mb-2">
-                    Spar mer med varmepumpe
-                  </h4>
-                  <p className="text-xs text-green-700 mb-3">
-                    En varmepumpe kan redusere oppvarmingskostnadene betydelig. Vi kan også hjelpe deg med tilbud på dette.
-                  </p>
-                  <div className="mt-3">
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="businessWantHeatPumpOffer"
-                        checked={formData.businessWantHeatPumpOffer || false}
-                        onChange={handleChange}
-                        className="h-6 w-6 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer"
-                      />
-                      <span className="ml-4 text-sm text-green-700">
-                        <strong>Ja, send meg også tilbud på varmepumpe</strong>
-                      </span>
+                
+                <div className="flex-1 space-y-4">
+                  {/* Header with enhanced typography */}
+                  <div>
+                    <h4 className="text-lg font-bold text-emerald-800 mb-2">
+                      🏢 Spar mer med varmepumpe
+                    </h4>
+                    <p className="text-sm text-emerald-700 leading-relaxed">
+                      En varmepumpe kan <strong>redusere oppvarmingskostnadene med opp til 70%</strong>. 
+                      For bedrifter kan dette bety betydelige årlige besparelser. Vi hjelper deg med tilbud fra kvalifiserte installatører.
+                    </p>
+                  </div>
+                  
+                  {/* Enhanced checkbox with better styling */}
+                  <div className="bg-white/70 backdrop-blur-sm border border-emerald-200 rounded-lg p-4 hover:bg-white/90 transition-all duration-200">
+                    <label className="flex items-center cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          name="businessWantHeatPumpOffer"
+                          checked={formData.businessWantHeatPumpOffer || false}
+                          onChange={handleChange}
+                          className="sr-only"
+                        />
+                        <div className={`w-6 h-6 rounded-md border-2 transition-all duration-200 ${
+                          formData.businessWantHeatPumpOffer 
+                            ? 'bg-emerald-500 border-emerald-500' 
+                            : 'bg-white border-gray-300 group-hover:border-emerald-400'
+                        }`}>
+                          {formData.businessWantHeatPumpOffer && (
+                            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <span className="text-emerald-800 font-semibold text-base">
+                          Jeg ønsker tilbud på varmepumpe
+                        </span>
+                      </div>
                     </label>
                   </div>
                 </div>
