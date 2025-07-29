@@ -357,7 +357,7 @@ const TrondheimProductList: React.FC<TrondheimProductListProps> = ({
           Denne strømavtalen koster {formatPrice(trondheimSpotPrice + trondheimDeals[0]?.addonPrice)} øre per kWh og har en estimert månedspris på {formatMonthlyCost(trondheimDeals[0]?.calculatedMonthlyPrice)} kr ved et årlig forbruk på {formatConsumption(annualConsumption)} kilowattimer.
         </p>
         <div className="mt-4 text-center">
-          <Link href="/kommuner/trondheim" className="text-blue-600 hover:text-blue-800 font-medium">
+          <Link href="/kommune/trondheim" className="text-blue-600 hover:text-blue-800 font-medium">
             Se billigste strømavtaler i Trondheim
           </Link>
         </div>

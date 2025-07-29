@@ -376,11 +376,11 @@ const BergenProductList: React.FC<BergenProductListProps> = ({
           })} er {bergenDeals[0]?.name} fra {bergenDeals[0]?.provider?.name}. 
           Denne strømavtalen koster {formatPrice(bergenSpotPrice + bergenDeals[0]?.addonPrice)} øre per kWh og har en estimert månedspris på {formatMonthlyCost(bergenDeals[0]?.calculatedMonthlyPrice)} kr ved et årlig forbruk på {formatConsumption(annualConsumption)} kilowattimer.
         </p>
-        <div className="mt-4 text-center">
-          <Link href="/kommuner/bergen" className="text-blue-600 hover:text-blue-800 font-medium">
-            Se billigste strømavtaler i Bergen
-          </Link>
-        </div>
+                  <div className="mt-4 text-center">
+            <Link href="/kommune/bergen" className="text-blue-600 hover:text-blue-800 font-medium">
+              Se billigste strømavtaler i Bergen
+            </Link>
+          </div>
       </div>
     </div>
   );

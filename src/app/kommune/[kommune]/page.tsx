@@ -111,11 +111,11 @@ async function fetchKommuneData(kommuneSlug: string) {
     const spotPriceData = await spotPriceResponse.json();
     
     let spotPrice = 1.0;
-    let averagePrice = null;
+    let averagePrice = 100; // Default to 100 øre/kWh (1 NOK/kWh)
     
     if (spotPriceData.success && spotPriceData.data) {
-      spotPrice = spotPriceData.data.averagePrice / 100; // Convert from øre to NOK
-      averagePrice = spotPriceData.data.averagePrice;
+      averagePrice = spotPriceData.data.averagePrice; // Keep in øre/kWh
+      spotPrice = spotPriceData.data.averagePrice / 100; // Convert from øre to NOK for legacy compatibility
     }
     
     // Step 4: Fetch hourly prices
@@ -149,15 +149,30 @@ async function fetchKommuneData(kommuneSlug: string) {
       
       // Calculate prices for each deal
       deals = deals.map((deal: any) => {
-        // Base spot price in øre/kWh
-        const baseSpotPrice = spotPrice;
-        
         // Calculate total price per kWh in øre
-        const addonPrice = deal.addonPrice || 0;
-        const elCertificatePrice = deal.elCertificatePrice || 0;
+        const baseSpotPriceOre = averagePrice || 100; // Use average electricity price in øre/kWh, fallback to 100 øre
+        const addonPrice = (deal.addonPrice || 0) * 100; // Convert from NOK to øre/kWh
+        const elCertificatePrice = deal.elCertificatePrice || 0; // øre/kWh
         
-        // Total price per kWh in øre
-        const totalPricePerKwt = baseSpotPrice + addonPrice + elCertificatePrice;
+        // For spot/plus products, add the current average electricity price
+        let totalPricePerKwt = 0;
+        if (deal.productType === 'hourly_spot' || deal.productType === 'plus') {
+          totalPricePerKwt = baseSpotPriceOre + addonPrice + elCertificatePrice;
+        } else if (deal.productType === 'fixed') {
+          // For fixed price products, get the price from salesNetworks
+          const fixedPrice = deal.salesNetworks && deal.salesNetworks.length > 0 
+            ? deal.salesNetworks[0].kwPrice * 100 // Convert from NOK to øre
+            : addonPrice;
+          totalPricePerKwt = fixedPrice + elCertificatePrice;
+        } else {
+          // For other product types, try to get price from salesNetworks first
+          const networkPrice = deal.salesNetworks && deal.salesNetworks.length > 0 
+            ? deal.salesNetworks[0].kwPrice * 100 // Convert from NOK to øre
+            : 0;
+          totalPricePerKwt = networkPrice > 0 
+            ? networkPrice + elCertificatePrice
+            : baseSpotPriceOre + addonPrice + elCertificatePrice;
+        }
         
         // Calculate monthly price for default consumption (15000 kWh)
         const monthlyConsumption = 15000 / 12; // kWh per month
@@ -169,7 +184,7 @@ async function fetchKommuneData(kommuneSlug: string) {
         
         return {
           ...deal,
-          baseSpotPrice,
+          baseSpotPriceOre,
           totalPricePerKwt,
           calculatedMonthlyPrice,
           isNewCustomerOnly: deal.applicableToCustomerType === 'newCustomers'
@@ -198,7 +213,7 @@ async function fetchKommuneData(kommuneSlug: string) {
       areaCode: 'NO1',
       deals: [],
       spotPrice: 1.0,
-      averagePrice: null,
+      averagePrice: 100, // Default to 100 øre/kWh (1 NOK/kWh)
       hourlyPrices: []
     };
   }

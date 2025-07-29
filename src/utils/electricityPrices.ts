@@ -191,8 +191,8 @@ export function calculateEnhancedMonthlyCost(
   // Get consumption for the specific month based on distribution
   const monthlyConsumption = getMonthlyConsumption(consumption, month);
   
-  // Get the addon price (påslag)
-  const addonPrice = product.addonPrice || 0;
+  // Get the addon price (påslag) - convert from NOK to øre
+  const addonPrice = (product.addonPrice || 0) * 100;
   
   // Get the monthly fee
   const monthlyFee = product.monthlyFee || 0;
@@ -224,8 +224,8 @@ export function getPriceBreakdown(
   // Get consumption for the specific month based on distribution
   const monthlyConsumption = getMonthlyConsumption(consumption, month);
   
-  // Get the product details
-  const addonPrice = product.addonPrice || 0;
+  // Get the product details - convert addon price from NOK to øre
+  const addonPrice = (product.addonPrice || 0) * 100;
   const monthlyFee = product.monthlyFee || 0;
   const elCertificatePrice = product.elCertificatePrice || 0;
   const paperInvoiceFee = product.feePostalLetterApplied ? (product.feePostalLetter || 0) : 0;

@@ -209,7 +209,7 @@ interface ElectricityDeal {
     logo?: string;
   };
   // Calculated fields
-  baseSpotPrice?: number;
+  baseSpotPriceOre?: number;
   totalPricePerKwt?: number;
   calculatedMonthlyPrice?: number;
   isNewCustomerOnly?: boolean;
@@ -628,15 +628,30 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
       
       // Calculate prices for each deal
       const calculatedDeals = filteredByType.map(deal => {
-        // Base spot price in øre/kWh (already in øre/kWh from the API)
-        const baseSpotPrice = spotPrice;
-        
         // Calculate total price per kWh in øre
-        const addonPrice = deal.addonPrice || 0; // Already in øre
-        const elCertificatePrice = deal.elCertificatePrice || 0; // Already in øre
+        const baseSpotPriceOre = (initialData?.averagePrice || spotPrice * 100) || 100; // Use average electricity price in øre/kWh
+        const addonPrice = (deal.addonPrice || 0) * 100; // Convert from NOK to øre/kWh
+        const elCertificatePrice = deal.elCertificatePrice || 0; // øre/kWh
         
-        // Total price per kWh in øre
-        const totalPricePerKwt = baseSpotPrice + addonPrice + elCertificatePrice;
+        // For spot/plus products, add the current average electricity price
+        let totalPricePerKwt = 0;
+        if (deal.productType === 'hourly_spot' || deal.productType === 'plus') {
+          totalPricePerKwt = baseSpotPriceOre + addonPrice + elCertificatePrice;
+        } else if (deal.productType === 'fixed') {
+          // For fixed price products, get the price from salesNetworks
+          const fixedPrice = deal.salesNetworks && deal.salesNetworks.length > 0 
+            ? deal.salesNetworks[0].kwPrice * 100 // Convert from NOK to øre
+            : addonPrice;
+          totalPricePerKwt = fixedPrice + elCertificatePrice;
+        } else {
+          // For other product types, try to get price from salesNetworks first
+          const networkPrice = deal.salesNetworks && deal.salesNetworks.length > 0 
+            ? deal.salesNetworks[0].kwPrice * 100 // Convert from NOK to øre
+            : 0;
+          totalPricePerKwt = networkPrice > 0 
+            ? networkPrice + elCertificatePrice
+            : baseSpotPriceOre + addonPrice + elCertificatePrice;
+        }
         
         // Calculate monthly price
         const monthlyConsumption = consumption / 12; // kWh per month
@@ -648,7 +663,7 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
         
         return {
           ...deal,
-          baseSpotPrice,
+          baseSpotPriceOre,
           totalPricePerKwt,
           calculatedMonthlyPrice,
           isNewCustomerOnly: deal.applicableToCustomerType === 'newCustomers'
@@ -693,6 +708,13 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
       return "0.00";
     }
     return price.toFixed(2);
+  }
+
+  // Generate slug for product link (same logic as in stromavtaler page)
+  function generateProductSlug(deal: ElectricityDeal): string {
+    const providerName = deal.provider?.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') || 'unknown';
+    const productName = deal.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') || 'unknown';
+    return `${providerName}-${productName}`;
   }
   
   // Capitalize kommune name for display
@@ -1777,7 +1799,12 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
                                       </td>
                                       
                                       <td className="px-6 py-4">
-                                        <div className="text-sm font-medium text-gray-900">{deal.name}</div>
+                                        <Link 
+                                          href={`/stromavtaler/${generateProductSlug(deal)}`}
+                                          className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                                        >
+                                          {deal.name}
+                                        </Link>
                                         <div className="text-xs text-gray-600 mt-1">{getProductTypeName(deal.productType)}</div>
                                       </td>
                                       
@@ -1859,8 +1886,111 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
                                                     <p className="text-sm text-gray-700">{deal.monthlyFee ? `${deal.monthlyFee} kr` : 'Ingen'}</p>
                                                   </div>
                                                   <div>
-                                                    <p className="text-xs text-gray-500">Tilleggspris</p>
-                                                    <p className="text-sm text-gray-700">{deal.addonPrice ? `${deal.addonPrice} øre/kWh` : 'Ingen'}</p>
+                                                    <p className="text-xs text-gray-500">Påslag per kWh</p>
+                                                    <p className="text-sm text-gray-700">
+                                                      {deal.addonPrice ? 
+                                                        `${(deal.addonPrice * 100).toFixed(2).replace('.', ',')} øre` : 
+                                                        'Ingen'
+                                                      }
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            
+                                            {/* Price Breakdown Section */}
+                                            <div className="col-span-1 md:col-span-2 mt-6 pt-6 border-t border-gray-200">
+                                              <h4 className="text-sm font-medium text-gray-900 mb-4">Prisoppdeling</h4>
+                                              <div className="bg-blue-50 p-4 rounded-lg">
+                                                <div className="space-y-3">
+                                                  {/* Price components */}
+                                                  {deal.productType === 'hourly_spot' || deal.productType === 'plus' ? (
+                                                    <>
+                                                      <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">Gjennomsnittlig spotpris ({kommuneData?.areaCode})</span>
+                                                        <span className="font-medium">{formatPrice((initialData?.averagePrice || spotPrice * 100) || 100)} øre/kWh</span>
+                                                      </div>
+                                                      {deal.addonPrice > 0 && (
+                                                        <div className="flex justify-between text-sm">
+                                                          <span className="text-gray-600">Påslag til {deal.provider?.name}</span>
+                                                          <span className="font-medium">{formatPrice(deal.addonPrice * 100)} øre/kWh</span>
+                                                        </div>
+                                                      )}
+                                                      {deal.elCertificatePrice > 0 && (
+                                                        <div className="flex justify-between text-sm">
+                                                          <span className="text-gray-600">Elsertifikatpris</span>
+                                                          <span className="font-medium">{formatPrice(deal.elCertificatePrice * 100)} øre/kWh</span>
+                                                        </div>
+                                                      )}
+                                                    </>
+                                                  ) : deal.productType === 'fixed' ? (
+                                                    <>
+                                                      <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">Fastpris</span>
+                                                        <span className="font-medium">
+                                                          {deal.salesNetworks && deal.salesNetworks.length > 0 
+                                                            ? formatPrice(deal.salesNetworks[0].kwPrice * 100)
+                                                            : formatPrice(deal.addonPrice * 100)
+                                                          } øre/kWh
+                                                        </span>
+                                                      </div>
+                                                      {deal.elCertificatePrice > 0 && (
+                                                        <div className="flex justify-between text-sm">
+                                                          <span className="text-gray-600">Elsertifikatpris</span>
+                                                          <span className="font-medium">{formatPrice(deal.elCertificatePrice * 100)} øre/kWh</span>
+                                                        </div>
+                                                      )}
+                                                    </>
+                                                  ) : (
+                                                    <>
+                                                      {deal.salesNetworks && deal.salesNetworks.length > 0 && deal.salesNetworks[0].kwPrice > 0 ? (
+                                                        <div className="flex justify-between text-sm">
+                                                          <span className="text-gray-600">Pris per kWh</span>
+                                                          <span className="font-medium">{formatPrice(deal.salesNetworks[0].kwPrice * 100)} øre/kWh</span>
+                                                        </div>
+                                                      ) : (
+                                                        <>
+                                                          <div className="flex justify-between text-sm">
+                                                            <span className="text-gray-600">Gjennomsnittlig spotpris ({kommuneData?.areaCode})</span>
+                                                            <span className="font-medium">{formatPrice((initialData?.averagePrice || spotPrice * 100) || 100)} øre/kWh</span>
+                                                          </div>
+                                                          {deal.addonPrice > 0 && (
+                                                            <div className="flex justify-between text-sm">
+                                                              <span className="text-gray-600">Påslag til {deal.provider?.name}</span>
+                                                              <span className="font-medium">{formatPrice(deal.addonPrice * 100)} øre/kWh</span>
+                                                            </div>
+                                                          )}
+                                                        </>
+                                                      )}
+                                                      {deal.elCertificatePrice > 0 && (
+                                                        <div className="flex justify-between text-sm">
+                                                          <span className="text-gray-600">Elsertifikatpris</span>
+                                                          <span className="font-medium">{formatPrice(deal.elCertificatePrice * 100)} øre/kWh</span>
+                                                        </div>
+                                                      )}
+                                                    </>
+                                                  )}
+                                                  
+                                                  <div className="flex justify-between text-sm font-medium border-t border-blue-200 pt-2">
+                                                    <span>Total pris per kWh</span>
+                                                    <span>{formatPrice(deal.totalPricePerKwt || 0)} øre/kWh</span>
+                                                  </div>
+                                                  
+                                                  <div className="flex justify-between text-sm mt-4">
+                                                    <span className="text-gray-600">Månedlig forbruk ({formatPrice(consumption / 12)} kWh × {formatPrice(deal.totalPricePerKwt || 0)} øre)</span>
+                                                    <span className="font-medium">{formatPrice(((deal.totalPricePerKwt || 0) / 100) * (consumption / 12))} kr</span>
+                                                  </div>
+                                                  
+                                                  {deal.monthlyFee > 0 && (
+                                                    <div className="flex justify-between text-sm">
+                                                      <span className="text-gray-600">Fast månedlig gebyr</span>
+                                                      <span className="font-medium">{formatPrice(deal.monthlyFee)} kr</span>
+                                                    </div>
+                                                  )}
+                                                  
+                                                  <div className="flex justify-between text-base font-bold border-t border-blue-200 pt-2">
+                                                    <span>Total månedskostnad</span>
+                                                    <span>{formatPrice(deal.calculatedMonthlyPrice)} kr</span>
                                                   </div>
                                                 </div>
                                               </div>
@@ -1898,7 +2028,12 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
                                       />
                                     </div>
                                   )}
-                                  <h3 className="text-lg font-medium text-gray-900 text-center">{deal.name}</h3>
+                                  <Link 
+                            href={`/stromavtaler/${generateProductSlug(deal)}`}
+                            className="text-lg font-medium text-blue-600 hover:text-blue-800 hover:underline text-center block"
+                          >
+                            {deal.name}
+                          </Link>
                                   <p className="text-sm text-gray-600 mt-1">{getProductTypeName(deal.productType)}</p>
                                 </div>
                                 
@@ -2030,7 +2165,12 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{deal.name}</div>
+                                <Link 
+                                  href={`/stromavtaler/${generateProductSlug(deal)}`}
+                                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                >
+                                  {deal.name}
+                                </Link>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm text-gray-900">{deal.totalPricePerKwt !== undefined ? `${formatPrice(deal.totalPricePerKwt)} øre` : 'N/A'}</div>
@@ -2105,7 +2245,12 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{deal.name}</div>
+                                <Link 
+                                  href={`/stromavtaler/${generateProductSlug(deal)}`}
+                                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                >
+                                  {deal.name}
+                                </Link>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm text-gray-900">{deal.totalPricePerKwt !== undefined ? `${formatPrice(deal.totalPricePerKwt)} øre` : 'N/A'}</div>
@@ -2186,7 +2331,12 @@ export default function KommuneClient({ kommuneNavn, initialData }: {
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{deal.name}</div>
+                                <Link 
+                                  href={`/stromavtaler/${generateProductSlug(deal)}`}
+                                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                >
+                                  {deal.name}
+                                </Link>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm text-gray-900">{deal.totalPricePerKwt !== undefined ? `${formatPrice(deal.totalPricePerKwt)} øre` : 'N/A'}</div>

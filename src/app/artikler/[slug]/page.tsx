@@ -13,6 +13,25 @@ import path from 'path';
 // Use ISR for individual articles too
 export const revalidate = 3600;
 
+// Function to add CTA buttons above h2 tags
+function addCtaButtonsToContent(htmlContent: string): string {
+  if (!htmlContent) return '';
+  
+  const ctaButton = `
+    <div class="my-8">
+      <a href="/tilbud" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-md no-underline" style="text-decoration: none !important; color: white !important;">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="white" viewBox="0 0 24 24" style="color: white !important;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span style="color: white !important;">Få opptil 3 tilbud på strøm!</span>
+      </a>
+    </div>
+  `;
+  
+  // Replace all h2 tags with CTA button + h2 tag
+  return htmlContent.replace(/<h2([^>]*)>/g, `${ctaButton}<h2$1>`);
+}
+
 // Generate metadata for the page
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   // Simpler slug extraction
@@ -63,7 +82,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       <Navbar />
       
       <main className="flex-grow bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Breadcrumbs */}
           <nav className="mb-6">
             <ol className="flex items-center space-x-2 text-sm text-gray-600">
@@ -132,7 +151,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
               {/* Article Content */}
               <div 
                 className="prose prose-lg max-w-none article-content"
-                dangerouslySetInnerHTML={{ __html: article.Content || '' }}
+                dangerouslySetInnerHTML={{ __html: addCtaButtonsToContent(article.Content || '') }}
               />
               
               {/* Back to Articles */}
@@ -248,7 +267,7 @@ async function getArticleBySlug(slug: string) {
 }
 
 // Function to get related articles
-async function getRelatedArticles(currentArticleId, limit = 3) {
+async function getRelatedArticles(currentArticleId: number, limit = 3) {
   try {
     const { data, error } = await supabase
       .from('articles')

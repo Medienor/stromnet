@@ -326,7 +326,7 @@ export default function Home() {
           <div className="mt-8">
             <div className="text-center mb-10">
               <h2 className="text-2xl font-bold text-gray-900">
-                <Link href="/kommuner/oslo" className="hover:text-blue-600">
+                <Link href="/kommune/oslo" className="hover:text-blue-600">
                   Beste strømavtale i Oslo
                 </Link>
               </h2>
@@ -667,7 +667,7 @@ export default function Home() {
             </p>
           )}
           <div className="mt-4 text-center">
-            <Link href="/kommuner/bergen" className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/kommune/bergen" className="text-blue-600 hover:text-blue-800 font-medium">
               Se billigste strømavtaler i Bergen
             </Link>
           </div>

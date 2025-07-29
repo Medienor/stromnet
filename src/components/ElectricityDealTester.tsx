@@ -502,7 +502,7 @@ const calculateCurrentPrice = (product: Product, marketPrice: number): number =>
       // Market price + addon price + el certificate + monthly fee converted to per kWh
       const monthlyFeePerKwh = (product.monthlyFee || 0) / 1000; // Assuming 1000 kWh monthly usage
       return marketPrice + 
-             (product.addonPrice || 0) + 
+             ((product.addonPrice || 0) * 100) + // Convert from NOK to øre
              (product.elCertificatePrice || 0) + 
              monthlyFeePerKwh;
     

@@ -1,13 +1,22 @@
 import { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { DM_Sans, Inter } from 'next/font/google';
 
-// Initialize the Inter font
+// Initialize the Inter font (primary)
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+  weight: ['200', '300', '400', '500', '600', '700'],
+});
+
+// Initialize the DM Sans font (fallback)
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-dm-sans',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 // Get current month and year in Norwegian
@@ -31,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="nb" className={`${inter.variable}`}>
+    <html lang="nb" className={`${inter.variable} ${dmSans.variable}`}>
       <head>
         {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive">
