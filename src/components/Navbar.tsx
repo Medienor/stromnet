@@ -220,7 +220,6 @@ export default function Navbar({
             <Link href="/fastpris-strom" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Fastpris</Link>
             <Link href="/dagens-strompris" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Dagens strømpris</Link>
             <Link href="/stromtest" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Test din strømavtale ⚡</Link>
-            <Link href="/bedrift" className={`px-2 py-2 ${textColor} font-medium ${hoverColor}`}>Bedrift</Link>
             
             {/* Search icon button */}
             <button 
@@ -368,13 +367,6 @@ export default function Navbar({
               onClick={() => setMobileMenuOpen(false)}
             >
               Test din strømavtale ⚡
-            </Link>
-            <Link 
-              href="/bedrift" 
-              className={`block px-3 py-2 rounded-md text-base font-medium ${isOnTilbudPage ? 'text-white hover:text-blue-200' : 'text-gray-700 hover:text-blue-600'} hover:bg-gray-50`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Bedrift
             </Link>
             {!isOnTilbudPage && (
               <div className="pt-2">

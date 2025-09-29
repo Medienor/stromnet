@@ -44,12 +44,13 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><Link href="/om-oss" className="text-gray-700 hover:text-indigo-700">Om oss</Link></li>
               <li><Link href="/personvern" className="text-gray-700 hover:text-indigo-700">Personvern</Link></li>
+              <li><Link href="/brukervilkar" className="text-gray-700 hover:text-indigo-700">Brukervilkår</Link></li>
             </ul>
           </div>
         </div>
         
         <div className="mt-12 text-gray-600 text-sm">
-          <p>2025 © Stromnet.no | <a href="mailto:post@stromnet.no" className="hover:text-indigo-700">post@stromnet.no</a></p>
+          <p>Copyright 2025 © Netsure AS. MVA 834 762 102 | <a href="mailto:post@stromnet.no" className="hover:text-indigo-700">post@stromnet.no</a></p>
         </div>
       </div>
     </footer>

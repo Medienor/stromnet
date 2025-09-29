@@ -65,27 +65,27 @@ export default function TakkPage() {
             </h2>
             <p className="text-lg text-gray-700 max-w-4xl mx-auto">
               Som kunde hos Strømnet.no får du eksklusiv tilgang til vårt sparenettverk. Vi har forhandlet frem 
-              spesialavtaler på tv-pakker, mobilabonnement og forsikring som kan redusere de månedlige utgiftene dine betydelig.
+              spesialavtaler på tv-pakker, varmepumper og forsikring som kan redusere de månedlige utgiftene dine betydelig.
             </p>
           </div>
 
           <div className="space-y-6">
-            {/* Mobile Subscription Card - Full Width */}
+            {/* Heat Pump Card - Full Width */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center mb-3">
                 <span className="text-green-500 mr-2">✅</span>
-                <span className="text-sm font-medium text-green-700">Spar mellom 100 til 300 kr/mnd</span>
+                <span className="text-sm font-medium text-green-700">Spar tusenvis av kroner på oppvarming</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Mobilabonnement</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Varmepumpe</h3>
               <p className="text-gray-600 mb-4">
-                Få mer innhold til lavere pris. Få tilbud på mobilabonnement. Få tilbud fra opptil 3 
-                mobiloperatører helt gratis.
+                Få tilbud på varmepumpe fra flere leverandører. En varmepumpe kan redusere oppvarmingskostnadene 
+                dine betydelig og er et miljøvennlig alternativ til tradisjonell oppvarming.
               </p>
               <Link 
-                href="https://www.mobilabonnementpris.no/kampanje?utm=str%C3%B8mnet.no" 
+                href="https://www.varmepumpepris.no/?utm=str%C3%B8mnet.no" 
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
               >
-                Sammenlign mobilabonnement
+                Sammenlign varmepumper
               </Link>
             </div>
 

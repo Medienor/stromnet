@@ -39,6 +39,9 @@ export default function MultiStepForm() {
     // Heat pump offer fields
     wantHeatPumpOffer: false,
     businessWantHeatPumpOffer: false,
+    // Marketing consent fields
+    marketingConsent: false,
+    businessMarketingConsent: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -384,6 +387,7 @@ export default function MultiStepForm() {
             contractType: formData.contractType,
             knowsConsumption: formData.knowsConsumption,
             wantHeatPumpOffer: formData.wantHeatPumpOffer || false,
+            marketing: formData.marketingConsent || false,
             comment: formData.knowsConsumption === 'yes' ? `Årsforbruk: ${formData.annualConsumption} kWh` : 'Vet ikke årsforbruk',
             
             timestamp: new Date().toISOString()
@@ -490,6 +494,7 @@ export default function MultiStepForm() {
             propertySize: formData.propertySize,
             businessKnowsConsumption: formData.businessKnowsConsumption,
             businessWantHeatPumpOffer: formData.businessWantHeatPumpOffer || false,
+            marketing: formData.businessMarketingConsent || false,
             comment: formData.businessKnowsConsumption === 'yes' 
               ? `Eiendom: ${formData.propertySize}m², Årsforbruk: ${formData.businessAnnualConsumption} kWh` 
               : `Eiendom: ${formData.propertySize}m², Vet ikke årsforbruk`,
@@ -716,7 +721,7 @@ export default function MultiStepForm() {
             )}
             
             <p className="text-xs text-gray-500 text-center mt-4">
-            Ved å fylle ut skjemaet får du de beste strømtilbudene direkte fra strømleverandørene. Se standard tilbud i prisoversikten.
+            Ved å sende inn skjemaet godtar du at Strømnet.no kan lagre dine opplysninger og kontakte deg med tilbud. Les vår <a href="/personvern" className="text-blue-600 hover:underline">personvernerklæring</a> og <a href="/brukervilkar" className="text-blue-600 hover:underline">brukervilkår</a>.
             </p>
           </div>
         )}
@@ -814,7 +819,7 @@ export default function MultiStepForm() {
                   required
                 />
                 <span className="ml-2 text-sm text-gray-600">
-                  Jeg aksepterer brukervilkårene, og bekrefter at personopplysningene er korrekte.
+                  Jeg aksepterer <a href="/brukervilkar" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">brukervilkårene</a>, og bekrefter at personopplysningene er korrekte.
                 </span>
               </label>
               {errors.acceptTerms && (
@@ -827,109 +832,20 @@ export default function MultiStepForm() {
               )}
             </div>
 
-            {/* Heat pump offer box */}
-            <div className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-6 mt-6 shadow-lg hover:shadow-xl transition-all duration-300">
-              {/* Populært badge - absolute positioned */}
-              <div className="absolute top-3 right-3 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
-                Populært
-              </div>
-              
-              {/* Decorative background pattern */}
-              <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
-                <svg viewBox="0 0 100 100" className="w-full h-full text-emerald-300">
-                  <circle cx="50" cy="20" r="8" fill="currentColor"/>
-                  <circle cx="20" cy="50" r="6" fill="currentColor"/>
-                  <circle cx="80" cy="60" r="4" fill="currentColor"/>
-                  <circle cx="60" cy="80" r="5" fill="currentColor"/>
-                </svg>
-              </div>
-              
-              <div className="relative flex items-start space-x-4">
-                {/* Icon with enhanced styling - original heat pump icon */}
-                <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-md">
-                  <svg className="w-8 h-8 text-white" viewBox="0 0 512 512" fill="currentColor">
-                    <g>
-                      <polygon points="403.692,219.077 108.308,219.077 90.585,297.846 421.415,297.846"></polygon>
-                    </g>
-                    <g>
-                      <path d="M467.692,66.462H44.308C19.876,66.462,0,86.338,0,110.769v142.769c0,24.431,19.876,44.308,44.308,44.308h16l21.776-96.78
-                        c1.516-6.74,7.501-11.528,14.409-11.528h319.015c6.908,0,12.893,4.788,14.409,11.528l21.776,96.78h16
-                        c24.431,0,44.308-19.876,44.308-44.308V110.769C512,86.338,492.124,66.462,467.692,66.462z M334.769,169.846h-19.692
-                        c-8.157,0-14.769-6.613-14.769-14.769s6.613-14.769,14.769-14.769h19.692c8.157,0,14.769,6.613,14.769,14.769
-                        S342.926,169.846,334.769,169.846z M403.692,169.846H384c-8.157,0-14.769-6.613-14.769-14.769s6.613-14.769,14.769-14.769h19.692
-                        c8.157,0,14.769,6.613,14.769,14.769S411.849,169.846,403.692,169.846z"></path>
-                    </g>
-                    <g>
-                      <path d="M265.846,365.125c0-4.113,0.767-5.392,2.818-8.809c2.799-4.664,7.028-11.712,7.028-24.008
-                        c0-8.157-6.613-14.769-14.769-14.769s-14.769,6.613-14.769,14.769c0,4.113-0.767,5.392-2.818,8.809
-                        c-2.799,4.664-7.028,11.712-7.028,24.008c0,12.296,4.229,19.345,7.027,24.01c2.051,3.419,2.819,4.698,2.819,8.812
-                        s-0.767,5.395-2.819,8.812c-2.798,4.665-7.027,11.714-7.027,24.01c0,8.157,6.613,14.769,14.769,14.769s14.769-6.613,14.769-14.769
-                        c0-4.115,0.767-5.395,2.819-8.812c2.798-4.664,7.027-11.713,7.027-24.01s-4.229-19.345-7.027-24.01
-                        C266.614,370.519,265.846,369.240,265.846,365.125z"></path>
-                    </g>
-                    <g>
-                      <path d="M187.077,365.125c0-4.113,0.767-5.392,2.818-8.809c2.799-4.664,7.028-11.712,7.028-24.008
-                        c0-8.157-6.613-14.769-14.769-14.769s-14.769,6.613-14.769,14.769c0,4.113-0.767,5.392-2.818,8.809
-                        c-2.799,4.664-7.028,11.712-7.028,24.008c0,12.296,4.229,19.345,7.027,24.01c2.051,3.419,2.819,4.698,2.819,8.812
-                        s-0.767,5.395-2.819,8.812c-2.798,4.665-7.027,11.714-7.027,24.01c0,8.157,6.613,14.769,14.769,14.769s14.769-6.613,14.769-14.769
-                        c0-4.115,0.767-5.395,2.819-8.812c2.798-4.664,7.027-11.713,7.027-24.01s-4.229-19.345-7.027-24.01
-                        C187.845,370.519,187.077,369.240,187.077,365.125z"></path>
-                    </g>
-                    <g>
-                      <path d="M344.615,365.125c0-4.113,0.767-5.392,2.818-8.809c2.799-4.664,7.028-11.712,7.028-24.008
-                        c0-8.157-6.613-14.769-14.769-14.769s-14.769,6.613-14.769,14.769c0,4.113-0.767,5.392-2.818,8.809
-                        c-2.799,4.664-7.028,11.712-7.028,24.008c0,12.296,4.229,19.345,7.027,24.01c2.051,3.419,2.819,4.698,2.819,8.812
-                        s-0.767,5.395-2.819,8.812c-2.798,4.665-7.027,11.714-7.027,24.01c0,8.157,6.613,14.769,14.769,14.769s14.769-6.613,14.769-14.769
-                        c0-4.115,0.767-5.395,2.819-8.812c2.798-4.664,7.027-11.713,7.027-24.01s-4.229-19.345-7.027-24.01
-                        C345.383,370.519,344.615,369.240,344.615,365.125z"></path>
-                    </g>
-                  </svg>
-                </div>
-                
-                <div className="flex-1 space-y-4">
-                  {/* Header with enhanced typography */}
-                  <div>
-                    <h4 className="text-lg font-bold text-emerald-800 mb-2">
-                      💰 Spar mer med varmepumpe
-                    </h4>
-                    <p className="text-sm text-emerald-700 leading-relaxed">
-                      En varmepumpe kan <strong>redusere oppvarmingskostnadene med opp til 70%</strong>. 
-                      Vi hjelper deg med å finne de beste tilbudene fra kvalifiserte installatører.
-                    </p>
-                  </div>
-                  
-                  {/* Enhanced checkbox with better styling */}
-                  <div className="bg-white/70 backdrop-blur-sm border border-emerald-200 rounded-lg p-4 hover:bg-white/90 transition-all duration-200">
-                    <label className="flex items-center cursor-pointer group">
-                      <div className="relative">
+            {/* Marketing consent checkbox */}
+            <div className="mt-4">
+              <label className="flex items-start">
                         <input
                           type="checkbox"
-                          name="wantHeatPumpOffer"
-                          checked={formData.wantHeatPumpOffer || false}
+                  name="marketingConsent"
+                  checked={formData.marketingConsent || false}
                           onChange={handleChange}
-                          className="sr-only"
-                        />
-                        <div className={`w-6 h-6 rounded-md border-2 transition-all duration-200 ${
-                          formData.wantHeatPumpOffer 
-                            ? 'bg-emerald-500 border-emerald-500' 
-                            : 'bg-white border-gray-300 group-hover:border-emerald-400'
-                        }`}>
-                          {formData.wantHeatPumpOffer && (
-                            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <span className="text-emerald-800 font-semibold text-base">
-                          Jeg ønsker tilbud på varmepumpe
-                        </span>
-                      </div>
+                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-600 font-light">
+                  Jeg samtykker til å motta nyhetsbrev, tilbud og kampanjer fra Netsure AS og deres tilknyttede tjenester. <a href="/personvern" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Les mer i vår personvernerklæring.</a>
+                </span>
                     </label>
-                  </div>
-                </div>
-              </div>
             </div>
             
             {errors.submit && (
@@ -1087,7 +1003,7 @@ export default function MultiStepForm() {
                   required
                 />
                 <span className="ml-2 text-sm text-gray-600">
-                  Jeg aksepterer brukervilkårene, og bekrefter at personopplysningene er korrekte.
+                  Jeg aksepterer <a href="/brukervilkar" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">brukervilkårene</a>, og bekrefter at personopplysningene er korrekte. 
                 </span>
               </label>
               {errors.businessAcceptTerms && (
@@ -1100,109 +1016,20 @@ export default function MultiStepForm() {
               )}
             </div>
 
-            {/* Heat pump offer box for business */}
-            <div className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-6 mt-6 shadow-lg hover:shadow-xl transition-all duration-300">
-              {/* Bedrift badge - absolute positioned */}
-              <div className="absolute top-3 right-3 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
-                Bedrift
-              </div>
-              
-              {/* Decorative background pattern */}
-              <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
-                <svg viewBox="0 0 100 100" className="w-full h-full text-emerald-300">
-                  <circle cx="50" cy="20" r="8" fill="currentColor"/>
-                  <circle cx="20" cy="50" r="6" fill="currentColor"/>
-                  <circle cx="80" cy="60" r="4" fill="currentColor"/>
-                  <circle cx="60" cy="80" r="5" fill="currentColor"/>
-                </svg>
-              </div>
-              
-              <div className="relative flex items-start space-x-4">
-                {/* Icon with enhanced styling - original heat pump icon */}
-                <div className="flex-shrink-0 bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-md">
-                  <svg className="w-8 h-8 text-white" viewBox="0 0 512 512" fill="currentColor">
-                    <g>
-                      <polygon points="403.692,219.077 108.308,219.077 90.585,297.846 421.415,297.846"></polygon>
-                    </g>
-                    <g>
-                      <path d="M467.692,66.462H44.308C19.876,66.462,0,86.338,0,110.769v142.769c0,24.431,19.876,44.308,44.308,44.308h16l21.776-96.78
-                        c1.516-6.74,7.501-11.528,14.409-11.528h319.015c6.908,0,12.893,4.788,14.409,11.528l21.776,96.78h16
-                        c24.431,0,44.308-19.876,44.308-44.308V110.769C512,86.338,492.124,66.462,467.692,66.462z M334.769,169.846h-19.692
-                        c-8.157,0-14.769-6.613-14.769-14.769s6.613-14.769,14.769-14.769h19.692c8.157,0,14.769,6.613,14.769,14.769
-                        S342.926,169.846,334.769,169.846z M403.692,169.846H384c-8.157,0-14.769-6.613-14.769-14.769s6.613-14.769,14.769-14.769h19.692
-                        c8.157,0,14.769,6.613,14.769,14.769S411.849,169.846,403.692,169.846z"></path>
-                    </g>
-                    <g>
-                      <path d="M265.846,365.125c0-4.113,0.767-5.392,2.818-8.809c2.799-4.664,7.028-11.712,7.028-24.008
-                        c0-8.157-6.613-14.769-14.769-14.769s-14.769,6.613-14.769,14.769c0,4.113-0.767,5.392-2.818,8.809
-                        c-2.799,4.664-7.028,11.712-7.028,24.008c0,12.296,4.229,19.345,7.027,24.01c2.051,3.419,2.819,4.698,2.819,8.812
-                        s-0.767,5.395-2.819,8.812c-2.798,4.665-7.027,11.714-7.027,24.01c0,8.157,6.613,14.769,14.769,14.769s14.769-6.613,14.769-14.769
-                        c0-4.115,0.767-5.395,2.819-8.812c2.798-4.664,7.027-11.713,7.027-24.01s-4.229-19.345-7.027-24.01
-                        C266.614,370.519,265.846,369.240,265.846,365.125z"></path>
-                    </g>
-                    <g>
-                      <path d="M187.077,365.125c0-4.113,0.767-5.392,2.818-8.809c2.799-4.664,7.028-11.712,7.028-24.008
-                        c0-8.157-6.613-14.769-14.769-14.769s-14.769,6.613-14.769,14.769c0,4.113-0.767,5.392-2.818,8.809
-                        c-2.799,4.664-7.028,11.712-7.028,24.008c0,12.296,4.229,19.345,7.027,24.01c2.051,3.419,2.819,4.698,2.819,8.812
-                        s-0.767,5.395-2.819,8.812c-2.798,4.665-7.027,11.714-7.027,24.01c0,8.157,6.613,14.769,14.769,14.769s14.769-6.613,14.769-14.769
-                        c0-4.115,0.767-5.395,2.819-8.812c2.798-4.664,7.027-11.713,7.027-24.01s-4.229-19.345-7.027-24.01
-                        C187.845,370.519,187.077,369.240,187.077,365.125z"></path>
-                    </g>
-                    <g>
-                      <path d="M344.615,365.125c0-4.113,0.767-5.392,2.818-8.809c2.799-4.664,7.028-11.712,7.028-24.008
-                        c0-8.157-6.613-14.769-14.769-14.769s-14.769,6.613-14.769,14.769c0,4.113-0.767,5.392-2.818,8.809
-                        c-2.799,4.664-7.028,11.712-7.028,24.008c0,12.296,4.229,19.345,7.027,24.01c2.051,3.419,2.819,4.698,2.819,8.812
-                        s-0.767,5.395-2.819,8.812c-2.798,4.665-7.027,11.714-7.027,24.01c0,8.157,6.613,14.769,14.769,14.769s14.769-6.613,14.769-14.769
-                        c0-4.115,0.767-5.395,2.819-8.812c2.798-4.664,7.027-11.713,7.027-24.01s-4.229-19.345-7.027-24.01
-                        C345.383,370.519,344.615,369.240,344.615,365.125z"></path>
-                    </g>
-                  </svg>
-                </div>
-                
-                <div className="flex-1 space-y-4">
-                  {/* Header with enhanced typography */}
-                  <div>
-                    <h4 className="text-lg font-bold text-emerald-800 mb-2">
-                      🏢 Spar mer med varmepumpe
-                    </h4>
-                    <p className="text-sm text-emerald-700 leading-relaxed">
-                      En varmepumpe kan <strong>redusere oppvarmingskostnadene med opp til 70%</strong>. 
-                      For bedrifter kan dette bety betydelige årlige besparelser. Vi hjelper deg med tilbud fra kvalifiserte installatører.
-                    </p>
-                  </div>
-                  
-                  {/* Enhanced checkbox with better styling */}
-                  <div className="bg-white/70 backdrop-blur-sm border border-emerald-200 rounded-lg p-4 hover:bg-white/90 transition-all duration-200">
-                    <label className="flex items-center cursor-pointer group">
-                      <div className="relative">
+            {/* Marketing consent checkbox */}
+            <div className="mt-4">
+              <label className="flex items-start">
                         <input
                           type="checkbox"
-                          name="businessWantHeatPumpOffer"
-                          checked={formData.businessWantHeatPumpOffer || false}
+                  name="businessMarketingConsent"
+                  checked={formData.businessMarketingConsent || false}
                           onChange={handleChange}
-                          className="sr-only"
-                        />
-                        <div className={`w-6 h-6 rounded-md border-2 transition-all duration-200 ${
-                          formData.businessWantHeatPumpOffer 
-                            ? 'bg-emerald-500 border-emerald-500' 
-                            : 'bg-white border-gray-300 group-hover:border-emerald-400'
-                        }`}>
-                          {formData.businessWantHeatPumpOffer && (
-                            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <span className="text-emerald-800 font-semibold text-base">
-                          Jeg ønsker tilbud på varmepumpe
-                        </span>
-                      </div>
+                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-600 font-light">
+                  Jeg samtykker til å motta nyhetsbrev, tilbud og kampanjer fra Netsure AS og deres tilknyttede tjenester. <a href="/personvern" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Les mer i vår personvernerklæring.</a>
+                </span>
                     </label>
-                  </div>
-                </div>
-              </div>
             </div>
             
             {errors.submit && (
@@ -1263,6 +1090,13 @@ export default function MultiStepForm() {
                 )}
               </button>
             </div>
+            
+            <p className="text-xs text-gray-500 text-center mt-4">
+            Ved å fylle ut skjemaet får du de beste strømtilbudene direkte fra strømleverandørene. Se standard tilbud i prisoversikten.
+            </p>
+            <p className="text-xs text-gray-500 text-center mt-2">
+            Ved å sende inn skjemaet godtar du at Strømnet.no kan lagre dine opplysninger og kontakte deg med tilbud. Les vår <a href="/personvern" className="text-blue-600 hover:underline">personvernerklæring</a> og <a href="/brukervilkar" className="text-blue-600 hover:underline">brukervilkår</a>.
+            </p>
           </div>
         )}
 
