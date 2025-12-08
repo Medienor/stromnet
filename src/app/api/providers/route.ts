@@ -23,6 +23,18 @@ const providers: Provider[] = [
     "slug": "agva-kraft"
   },
   {
+    "name": "Årdal Kraftlag",
+    "organizationNumber": 922694443,
+    "pricelistUrl": null,
+    "slug": "ardal-kraftlag"
+  },
+  {
+    "name": "Aursjokraft AS",
+    "organizationNumber": 925700398,
+    "pricelistUrl": "https://aursjokraft.no/prisliste",
+    "slug": "aursjokraft-as"
+  },
+  {
     "name": "Austevoll Kraftlag SA",
     "organizationNumber": 959254893,
     "pricelistUrl": "https://akkraft.no/Kundeservice/Prisliste/Utg%C3%A5tte-avtaler",
@@ -39,6 +51,12 @@ const providers: Provider[] = [
     "organizationNumber": 990892687,
     "pricelistUrl": "https://bodoenergi.no/ac/prislister/",
     "slug": "bodo-energi-kraftsalg-as"
+  },
+  {
+    "name": "Cheap Energy Norge AS",
+    "organizationNumber": 914779405,
+    "pricelistUrl": "https://cheapenergy.no/",
+    "slug": "cheap-energy-norge-as"
   },
   {
     "name": "Dalane Energisalg AS",
@@ -77,6 +95,12 @@ const providers: Provider[] = [
     "slug": "eletra-energy-as"
   },
   {
+    "name": "Finnås Kraftlag AS",
+    "organizationNumber": 923934170,
+    "pricelistUrl": null,
+    "slug": "finnas-kraftlag-as"
+  },
+  {
     "name": "Fitjar Kraftlag SA",
     "organizationNumber": 971028548,
     "pricelistUrl": "https://www.fitjar-kraftlag.no/kraft-privat/abonnement/spot-time-for-time",
@@ -113,6 +137,12 @@ const providers: Provider[] = [
     "slug": "gudbrandsdal-energi-as"
   },
   {
+    "name": "Hammerfest Energi Kraftomsetning",
+    "organizationNumber": 995680939,
+    "pricelistUrl": null,
+    "slug": "hammerfest-energi-kraftomsetning"
+  },
+  {
     "name": "Hardanger Energi AS",
     "organizationNumber": 983502601,
     "pricelistUrl": null,
@@ -123,6 +153,12 @@ const providers: Provider[] = [
     "organizationNumber": 915635903,
     "pricelistUrl": "https://hkraft.no/strom/prisliste-stromavtaler/",
     "slug": "haugaland-kraft-energi-as"
+  },
+  {
+    "name": "Heilhornkraft AS",
+    "organizationNumber": 930338028,
+    "pricelistUrl": "https://kraft.bindalkraftlag.no/stromprodukt/bindal/",
+    "slug": "heilhornkraft-as"
   },
   {
     "name": "Helgeland Kraft Strøm AS",
@@ -159,6 +195,12 @@ const providers: Provider[] = [
     "organizationNumber": 928938611,
     "pricelistUrl": "https://jaerkraft.no/prisliste/",
     "slug": "jaerkraft-as"
+  },
+  {
+    "name": "Jotunkraft AS",
+    "organizationNumber": 881475162,
+    "pricelistUrl": null,
+    "slug": "jotunkraft-as"
   },
   {
     "name": "Kilden Kraft AS",
@@ -203,6 +245,12 @@ const providers: Provider[] = [
     "slug": "midt-energi-as"
   },
   {
+    "name": "Modalen Kraftlag SA",
+    "organizationNumber": 877051412,
+    "pricelistUrl": "https://www.modalenkraftlag.no/",
+    "slug": "modalen-kraftlag-sa"
+  },
+  {
     "name": "Motkraft AS",
     "organizationNumber": 927605538,
     "pricelistUrl": "https://www.motkraft.no/prisliste",
@@ -213,6 +261,12 @@ const providers: Provider[] = [
     "organizationNumber": 960684737,
     "pricelistUrl": "https://www.neas.mr.no/stroem/historiske-priser/",
     "slug": "neas-as"
+  },
+  {
+    "name": "Nord-Salten Kraft AS",
+    "organizationNumber": 995114666,
+    "pricelistUrl": "https://nordsaltenkraft.no/prisliste",
+    "slug": "nord-salten-kraft-as"
   },
   {
     "name": "Notodden Energi AS",
@@ -263,6 +317,12 @@ const providers: Provider[] = [
     "slug": "saga-energi-as"
   },
   {
+    "name": "SEV AS",
+    "organizationNumber": 926186787,
+    "pricelistUrl": "https://www.sevas.no/prisliste",
+    "slug": "sev-as"
+  },
+  {
     "name": "SkandiaEnergi",
     "organizationNumber": 916493800,
     "pricelistUrl": "https://skandiaenergi.no/prisoversiktalle-avtaler",
@@ -309,6 +369,18 @@ const providers: Provider[] = [
     "organizationNumber": 917245975,
     "pricelistUrl": "https://tibber.com/no/smart-stromavtale",
     "slug": "tibber"
+  },
+  {
+    "name": "Tinfos Strøm AS",
+    "organizationNumber": 932012839,
+    "pricelistUrl": "https://www.tinfos.no/",
+    "slug": "tinfos-strom-as"
+  },
+  {
+    "name": "Tinn Energi og Fiber AS",
+    "organizationNumber": 982173329,
+    "pricelistUrl": "https://www.tinnenergifiber.no/stromavtaler/",
+    "slug": "tinn-energi-og-fiber-as"
   },
   {
     "name": "TrøndelagKraft AS",

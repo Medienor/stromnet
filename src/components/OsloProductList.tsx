@@ -367,7 +367,7 @@ const OsloProductList: React.FC<OsloProductListProps> = ({
           Denne strømavtalen koster {formatPrice(osloSpotPrice + osloDeals[0]?.addonPrice)} øre per kWh og har en estimert månedspris på {formatMonthlyCost(osloDeals[0]?.calculatedMonthlyPrice)} kr ved et årlig forbruk på {formatConsumption(annualConsumption)} kilowattimer.
         </p>
         <div className="mt-4 text-center">
-          <Link href="/kommuner/oslo" className="text-blue-600 hover:text-blue-800 font-medium">
+          <Link href="/kommune/oslo" className="text-blue-600 hover:text-blue-800 font-medium">
             Se billigste strømavtaler i Oslo
           </Link>
         </div>

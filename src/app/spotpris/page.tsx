@@ -15,7 +15,7 @@ import providerLogoUrls from '../data/providerLogoUrls';
 import MultiStepForm from '@/components/MultiStepForm';
 import Top50ProductList from '@/components/Top50ProductList';
 
-// Add these interfaces at the top of your file, after the imports
+// Define interfaces at the top of your file, after the imports
 interface Provider {
   id: string;
   name: string;
@@ -52,7 +52,7 @@ export default function SpotprisPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedDeal, setExpandedDeal] = useState(null);
-  const [annualConsumption, setAnnualConsumption] = useState(16000);
+  const [annualConsumption, setAnnualConsumption] = useState(20000);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   
@@ -173,7 +173,7 @@ export default function SpotprisPage() {
                     Slik finner du beste og billigste spotpris
                   </h1>
                   <p className="text-xl mb-8">
-                    Her viser vi deg Norges billigste spotprisavtale pr mars 2025.
+                    Her viser vi deg Norges billigste spotprisavtale pr {getCurrentMonthName()} {new Date().getFullYear()}.
                   </p>
                   
                   <div className="flex flex-col md:flex-row gap-4 mb-8 justify-center md:justify-start">
@@ -222,7 +222,7 @@ export default function SpotprisPage() {
             <div className="max-w-5xl mx-auto">
               <div className="prose prose-lg mx-auto">
                 <p className="text-gray-600 mb-6">
-                  Vi i strømnet har sammmenlignet alle spotprisavtaler i Norge. Nedenfor kan du se opplistingen av de billigste per 05 mars 2025.
+                  Vi i strømnet har sammmenlignet alle spotprisavtaler i Norge. Nedenfor kan du se opplistingen av de billigste per {getCurrentDate()}.
                 </p>
                 
                 <p className="text-gray-600 mb-6">
@@ -256,7 +256,7 @@ export default function SpotprisPage() {
               </h2>
               
               <p className="text-gray-600 mb-8 text-center">
-                I denne oversikten viser Strømnet Norges 20 billigste spotprisavtaler per mars 2025. 
+                I denne oversikten viser Strømnet Norges 20 billigste spotprisavtaler per {getCurrentMonthName()} {new Date().getFullYear()}. 
                 Tabellen tar forbehold om Strømregion NO1 og 20.000 kwh i forbruk per år.
               </p>
               
@@ -289,7 +289,7 @@ export default function SpotprisPage() {
               
               <div className="mt-8 text-center">
                 <p className="text-gray-600 mb-4">
-                  Den billigste strømavtalen med timespot i Norge per 05. mars 2025 er Agva Spot-Kampanje fra Agva Kraft. 
+                  Den billigste strømavtalen med timespot i Norge per {getCurrentDate()} er Agva Spot-Kampanje fra Agva Kraft. 
                   Denne strømavtalen koster 113 øre per kWh og har en estimert månedspris på 1 886 kr ved et årlig forbruk på 20 000 kilowattimer.
                 </p>
                 <p className="text-sm text-gray-500 italic">Data levert av Forbrukerportalen</p>

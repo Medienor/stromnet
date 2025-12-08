@@ -250,7 +250,7 @@ export function calculateMonthlyCost(
   
   // Fall back to the simplified calculation
   const monthlyConsumption = consumption / 12;
-  const addonPrice = product.addonPrice || 0;
+  const addonPrice = (product.addonPrice || 0) * 100; // Convert from NOK to øre
   const monthlyFee = product.monthlyFee || 0;
   const elCertificatePrice = product.elCertificatePrice || 0;
   

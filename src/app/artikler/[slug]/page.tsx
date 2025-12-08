@@ -4,14 +4,39 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import StickyCtaBanner from '@/components/StickyCtaBanner';
 import TableOfContents from './TableOfContents';
 import RelatedArticles from './RelatedArticles';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+// Use ISR for individual articles too
+export const revalidate = 3600;
+
+// Function to add CTA buttons above h2 tags
+function addCtaButtonsToContent(htmlContent: string): string {
+  if (!htmlContent) return '';
+  
+  const ctaButton = `
+    <div class="my-8">
+      <a href="/tilbud" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-md no-underline" style="text-decoration: none !important; color: white !important;">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="white" viewBox="0 0 24 24" style="color: white !important;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span style="color: white !important;">Få opptil 3 tilbud på strøm!</span>
+      </a>
+    </div>
+  `;
+  
+  // Replace all h2 tags with CTA button + h2 tag
+  return htmlContent.replace(/<h2([^>]*)>/g, `${ctaButton}<h2$1>`);
+}
 
 // Generate metadata for the page
-export async function generateMetadata({ params }) {
-  // Properly handle params by using destructuring with await
-  const { slug } = await Promise.resolve(params);
-  
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  // Simpler slug extraction
+  const { slug } = params;
+
   const article = await getArticleBySlug(slug);
   
   if (!article) {
@@ -28,12 +53,23 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ArticlePage({ params }) {
-  // Properly handle params by using destructuring with await
-  const { slug } = await Promise.resolve(params);
-  
-  const article = await getArticleBySlug(slug);
-  
+// Generate static paths at build time for SEO
+export async function generateStaticParams() {
+  const { data: articles } = await supabase
+    .from('articles')
+    .select('Slug')
+    .eq('Status', 'publish');
+
+  return articles?.map(({ Slug }) => ({
+    slug: Slug,
+  })) || [];
+}
+
+// Add dynamic route handling
+export const dynamic = 'force-dynamic';
+export default async function ArticlePage({ params }: { params: { slug: string } }) {
+  const article = await getArticleBySlug(params.slug);
+
   if (!article) {
     notFound();
   }
@@ -46,9 +82,9 @@ export default async function ArticlePage({ params }) {
       <Navbar />
       
       <main className="flex-grow bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Breadcrumbs */}
-          <nav className="mb-8">
+          <nav className="mb-6">
             <ol className="flex items-center space-x-2 text-sm text-gray-600">
               <li>
                 <Link href="/" className="hover:text-indigo-600 transition-colors">
@@ -76,11 +112,13 @@ export default async function ArticlePage({ params }) {
             </ol>
           </nav>
           
-          {/* Article Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">{article.Title}</h1>
+          {/* Article Header - Updated styling */}
+          <div className="mb-6">
+            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-3 leading-tight font-inter">
+              {article.Title}
+            </h1>
             {article.Date && (
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-base">
                 Publisert: {new Date(article.Date).toLocaleDateString('nb-NO', {
                   year: 'numeric',
                   month: 'long',
@@ -90,18 +128,16 @@ export default async function ArticlePage({ params }) {
             )}
           </div>
           
-          {/* Featured Image */}
-          {article["Image URL"] && (
-            <div className="relative h-64 md:h-96 w-full mb-10 rounded-xl overflow-hidden shadow-lg">
-              <Image 
-                src={article["Image URL"]} 
-                alt={article["Image Alt Text"] || article.Title} 
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          )}
+          {/* Featured Image - Updated styling */}
+          <div className="relative w-full aspect-[16/9] mb-8">
+            <Image 
+              src={`/images/${article.ID}.${article.imageExtension || 'jpg'}`}
+              alt={article.Title}
+              fill
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
           
           {/* Two-column layout */}
           <div className="flex flex-col lg:flex-row gap-8">
@@ -115,7 +151,7 @@ export default async function ArticlePage({ params }) {
               {/* Article Content */}
               <div 
                 className="prose prose-lg max-w-none article-content"
-                dangerouslySetInnerHTML={{ __html: article.Content || '' }}
+                dangerouslySetInnerHTML={{ __html: addCtaButtonsToContent(article.Content || '') }}
               />
               
               {/* Back to Articles */}
@@ -157,35 +193,81 @@ export default async function ArticlePage({ params }) {
         </div>
       </main>
       
+      <StickyCtaBanner />
       <Footer />
     </div>
   );
 }
 
 // Function to get article by slug
-async function getArticleBySlug(slug) {
+async function getArticleBySlug(slug: string) {
+  // Check if slug is valid before querying
+  if (!slug) {
+    console.error('getArticleBySlug called with invalid slug:', slug);
+    return null;
+  }
+  // Add detailed logging for the specific slug causing issues
+  console.log(`[getArticleBySlug] Attempting to fetch article with slug: ${slug}`);
   try {
     const { data, error } = await supabase
       .from('articles')
       .select('*')
+      // Use the slug string directly in the query
       .eq('Slug', slug)
       .eq('Status', 'publish')
       .single();
-    
+
     if (error) {
-      console.error('Error fetching article:', error);
-      return null;
+      // Log the specific Supabase error
+      console.error(`[getArticleBySlug] Supabase error fetching article by slug '${slug}':`, error);
+      // Handle specific errors like 'PGRST116' (No rows found) gracefully
+      if (error.code === 'PGRST116') {
+        console.log(`[getArticleBySlug] Article with slug '${slug}' not found or not published.`);
+        return null; // Not found is not an unexpected error
+      }
+      throw error; // Re-throw other errors
+    }
+
+    if (data) {
+      console.log(`[getArticleBySlug] Successfully fetched article data for slug '${slug}'. ID: ${data.ID}`);
+      // Default extension if none is found
+      let foundExtension = 'webp';
+      
+      // Check which extension exists
+      const extensions = ['jpg', 'png', 'jpeg', 'webp'];
+      const publicDir = path.join(process.cwd(), 'public', 'images');
+      
+      for (const ext of extensions) {
+        const filePath = path.join(publicDir, `${data.ID}.${ext}`);
+        try {
+          await fs.access(filePath);
+          foundExtension = ext;
+          console.log(`[getArticleBySlug] Found image file for ID ${data.ID} with extension: ${ext}`);
+          break;
+        } catch {
+          // console.log(`[getArticleBySlug] Image file ${data.ID}.${ext} not found.`); // Optional: uncomment for very detailed debugging
+          continue;
+        }
+      }
+      
+      // Always set an extension, even if we didn't find the file
+      data.imageExtension = foundExtension;
+      console.log(`[getArticleBySlug] Set imageExtension to '${foundExtension}' for article ID ${data.ID}`);
+    } else {
+      // This case should technically be covered by error.code === 'PGRST116', but log just in case
+      console.log(`[getArticleBySlug] No data returned for slug '${slug}', but no Supabase error reported.`);
     }
     
     return data;
   } catch (error) {
-    console.error('Unexpected error:', error);
+    // Log the caught error
+    console.error(`[getArticleBySlug] Unexpected error fetching article with slug '${slug}':`, error);
     return null;
   }
 }
 
 // Function to get related articles
-async function getRelatedArticles(currentArticleId, limit = 3) {
+async function getRelatedArticles(currentArticleId: number, limit = 3) {
   try {
     const { data, error } = await supabase
       .from('articles')
@@ -200,29 +282,23 @@ async function getRelatedArticles(currentArticleId, limit = 3) {
       return [];
     }
     
-    return data;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return [];
-  }
-}
-
-// Generate static paths for all articles
-export async function generateStaticParams() {
-  try {
-    const { data: articles, error } = await supabase
-      .from('articles')
-      .select('Slug')
-      .eq('Status', 'publish');
+    // Map articles and preserve their image extensions
+    const articlesWithImages = data.map(article => {
+      let extension = 'webp'; // default
+      if (article["Image URL"]) {
+        const match = article["Image URL"].match(/\.(png|webp|jpg|jpeg)$/i);
+        if (match) {
+          extension = match[1].toLowerCase();
+        }
+      }
+      
+      return {
+        ...article,
+        "Image URL": `/images/${article.ID}.${extension}`
+      };
+    });
     
-    if (error) {
-      console.error('Error fetching article slugs:', error);
-      return [];
-    }
-    
-    return articles.map(article => ({
-      slug: article.Slug
-    }));
+    return articlesWithImages;
   } catch (error) {
     console.error('Unexpected error:', error);
     return [];

@@ -1,6 +1,9 @@
-// Map organization numbers to their Webflow CDN URLs
+// Map organization numbers to their Webflow CDN URLs (and local images)
 const providerLogoUrls = {
   '925638153': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a3449c10dd93ce0fe01822_925638153.png',
+  '926186787': '/sevlogo.png', // SEV AS (Sogn Energivekst) - local logo
+  '930338028': '/Heilhornkraft.png', // Heilhornkraft AS - local logo
+  '914779405': '/cheapenergy.png', // Cheap Energy Norge AS - local logo
   '914902371': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a3434b10dd93ce0fdeb951_914902371.png',
   '880396072': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a3436bf8ee44cbdce6a845_880396072.png',
   '927605538': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a347174b0813a8151bf92d_927605538.png',
@@ -68,7 +71,9 @@ const providerLogoUrls = {
   '982974062': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a34721fdeff8043fa74064_982974062.png',
   '980335224': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a34cdd92506a02ac76ba1c_980335224.jpg',
   '995287889': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a34d41fd0f1e477a91ef71_995287889.png',
-  '991854126': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a34d41ce6ac569b796b9a2_991854126.png'
+  '991854126': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/67a34d41ce6ac569b796b9a2_991854126.png',
+  '993300012': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/6810b9e04c75ec1c41dfc0e7_3e8e4e2f9e4e984f3c63db87b8056a605580e50b-5573x1124.webp',
+  '915635903': 'https://cdn.prod.website-files.com/65c9354ba019d99e59a8cf88/6810bb1c0f29ef3109e60b1d_915635903.png'
 };
 
 export default providerLogoUrls;

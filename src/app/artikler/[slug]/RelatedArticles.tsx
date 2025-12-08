@@ -9,19 +9,21 @@ export default function RelatedArticles({ articles }) {
   
   return (
     <div className="space-y-3">
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {articles.map(article => (
-          <li key={article.ID}>
+          <li key={article.ID} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
             <Link 
               href={`/artikler/${article.Slug}`}
-              className="block group"
+              className="flex items-start gap-3 group"
             >
-              <h4 className="text-gray-900 font-medium group-hover:text-blue-700 transition-colors">
-                {article.Title}
-              </h4>
-              <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                {article.Excerpt ? article.Excerpt.replace(/<[^>]*>/g, '') : 'Les mer'}
-              </p>
+              <div className="flex-grow">
+                <h4 className="text-gray-900 font-medium group-hover:text-blue-700 transition-colors line-clamp-2">
+                  {article.Title}
+                </h4>
+                <p className="text-sm text-gray-600 mt-1 line-clamp-1">
+                  {article.Excerpt ? article.Excerpt.replace(/<[^>]*>/g, '') : 'Les mer'}
+                </p>
+              </div>
             </Link>
           </li>
         ))}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import StickyProviderCta from '@/components/StickyProviderCta';
 import Link from 'next/link';
 import municipalities from '@/app/data/municipalities.json';
 import { useRouter } from 'next/navigation';
@@ -1347,6 +1348,7 @@ export default function ProviderDetailClient({ provider, initialDeals = [], init
         </div>
       </main>
       
+      <StickyProviderCta />
       <Footer />
     </div>
   );

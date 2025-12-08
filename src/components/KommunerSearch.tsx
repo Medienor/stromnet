@@ -11,6 +11,21 @@ export default function KommunerSearch({ municipalities }) {
     municipality.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
+  // Helper function to create URL-friendly slugs
+  const createSlug = (name: string): string => {
+    if (!name) return '';
+    
+    return name
+      .toLowerCase()
+      .replace(/æ/g, 'ae')
+      .replace(/ø/g, 'o')
+      .replace(/å/g, 'a')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+  
   return (
     <div>
       <div className="mb-8">
@@ -36,7 +51,7 @@ export default function KommunerSearch({ municipalities }) {
         {filteredMunicipalities.map((municipality) => (
           <Link 
             key={municipality.number} 
-            href={`/kommuner/${municipality.name.toLowerCase()}`}
+            href={`/kommune/${createSlug(municipality.name)}`}
             className="p-4 border border-gray-200 rounded-md hover:bg-blue-50 hover:border-blue-200 transition-colors"
           >
             <div className="font-medium text-gray-900">{municipality.name}</div>
