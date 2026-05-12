@@ -34,7 +34,7 @@ export default function BusinessPage() {
         <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
           <div className="absolute inset-0 z-0">
             <Image 
-              src="/bg-img.jpg"
+              src="/bg-img-v2.jpg"
               alt="Background"
               fill
               className="object-cover opacity-30"
@@ -139,7 +139,7 @@ export default function BusinessPage() {
               <div className="mb-8 flex justify-center">
                 <div className="relative w-full max-w-md h-64 md:h-80">
                   <Image 
-                    src="/proff.webp" 
+                    src="/proff-v2.webp" 
                     alt="Profesjonell strømavtale for bedrifter" 
                     fill
                     style={{ objectFit: 'contain' }}
@@ -366,7 +366,7 @@ export default function BusinessPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
                 <div className="flex justify-center mb-4">
                   <Image 
-                    src="/proff.webp" 
+                    src="/proff-v2.webp" 
                     alt="Beste strømavtale bedrift" 
                     width={400}
                     height={250}

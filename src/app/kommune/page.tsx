@@ -47,7 +47,7 @@ export default function Kommuner() {
               <div className="flex items-center justify-center">
                 <div className="relative w-full h-auto max-w-md mx-auto">
                   <Image 
-                    src="/mountain.jpg" 
+                    src="/mountain-v2.jpg" 
                     alt="Norsk landskap" 
                     width={600} 
                     height={400} 

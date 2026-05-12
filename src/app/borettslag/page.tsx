@@ -17,7 +17,7 @@ export default function BorettslagPage() {
         <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
           <div className="absolute inset-0 z-0">
             <Image 
-              src="/bg-img.jpg"
+              src="/bg-img-v2.jpg"
               alt="Background"
               fill
               className="object-cover opacity-30"
@@ -117,7 +117,7 @@ export default function BorettslagPage() {
               
               <div className="relative h-[300px] w-full mb-12 rounded-lg overflow-hidden">
                 <Image
-                  src="/compare.png"
+                  src="/compare-v2.png"
                   alt="Strøm til borettslag"
                   fill
                   style={{ objectFit: 'cover', objectPosition: 'center' }}
@@ -230,7 +230,7 @@ export default function BorettslagPage() {
                 
                 <div className="relative h-[300px] w-full rounded-lg overflow-hidden">
                   <Image
-                    src="/compare.png"
+                    src="/compare-v2.png"
                     alt="Strømavtale borettslag"
                     fill
                     style={{ objectFit: 'cover', objectPosition: 'center' }}

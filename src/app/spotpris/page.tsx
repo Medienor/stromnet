@@ -157,7 +157,7 @@ export default function SpotprisPage() {
         <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
           <div className="absolute inset-0 z-0">
             <Image 
-              src="/bg-img.jpg"
+              src="/bg-img-v2.jpg"
               alt="Background"
               fill
               className="object-cover opacity-30"
@@ -232,7 +232,7 @@ export default function SpotprisPage() {
               
               <div className="mt-12 relative h-[300px] w-full rounded-lg overflow-hidden">
                 <Image
-                  src="/compare.png"
+                  src="/compare-v2.png"
                   alt="Beste spotpris strøm"
                   fill
                   style={{ objectFit: 'cover', objectPosition: 'center' }}
@@ -513,7 +513,7 @@ export default function SpotprisPage() {
                 <div className="md:col-span-2">
                   <div className="relative h-[300px] w-full rounded-lg overflow-hidden">
                     <Image
-                      src="/compare.png"
+                      src="/compare-v2.png"
                       alt="Spotprisavtale"
                       fill
                       style={{ objectFit: 'cover', objectPosition: 'center' }}

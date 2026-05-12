@@ -66,7 +66,7 @@ export default async function ArticlesPage() {
         <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
           <div className="absolute inset-0 z-0">
             <Image 
-              src="/bg-img.jpg"
+              src="/bg-img-v2.jpg"
               alt="Background"
               fill
               className="object-cover opacity-30"
